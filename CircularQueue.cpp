@@ -1,26 +1,38 @@
 #include <iostream>
 
+// Node structure for the circular linked list
+class NodeType {
+public:
+    char info;
+    NodeType* link;
+    
+    NodeType(char data) {
+        info = data;
+        link = nullptr;
+    }
+};
+
+// Circular Queue class using linked list
 class CircularQueue {
 private:
-    char* array;
-    int capacity;      // Maximum capacity of the queue
-    int front;         // Index of the front element
-    int rear;          // Index of the rear element
-    int count;         // Current number of elements
+    NodeType* rear;        // Points to the last node (rear of queue)
+    int count;             // Current number of elements
+    int capacity;          // Maximum capacity of the queue
 
 public:
     // Constructor
     CircularQueue(int size) {
-        capacity = size;
-        array = new char[capacity];
-        front = 0;
-        rear = -1;
+        rear = nullptr;
         count = 0;
+        capacity = size;
     }
 
     // Destructor
     ~CircularQueue() {
-        delete[] array;
+        // Delete all nodes in the circular queue
+        while (!isEmpty()) {
+            dequeue();
+        }
     }
 
     // Add an element to the queue
@@ -30,11 +42,20 @@ public:
             return;
         }
         
-        // Update rear in circular fashion
-        rear = (rear + 1) % capacity;
-        array[rear] = item;
-        count++;
+        NodeType* newNode = new NodeType(item);
         
+        if (isEmpty()) {
+            // First node - points to itself
+            rear = newNode;
+            rear->link = rear;
+        } else {
+            // Insert after rear and update rear
+            newNode->link = rear->link;  // New node points to front
+            rear->link = newNode;        // Old rear points to new node
+            rear = newNode;              // Update rear to new node
+        }
+        
+        count++;
         std::cout << "Enqueued: " << item << std::endl;
     }
 
@@ -45,10 +66,20 @@ public:
             return '\0';
         }
         
-        char item = array[front];
-        front = (front + 1) % capacity;
-        count--;
+        NodeType* front = rear->link;  // Front is next to rear
+        char item = front->info;
         
+        if (count == 1) {
+            // Only one node - queue becomes empty
+            delete front;
+            rear = nullptr;
+        } else {
+            // Update rear to point to new front
+            rear->link = front->link;
+            delete front;
+        }
+        
+        count--;
         return item;
     }
 
@@ -58,12 +89,12 @@ public:
             std::cout << "Queue is empty" << std::endl;
             return '\0';
         }
-        return array[front];
+        return rear->link->info;  // Front is next to rear
     }
 
     // Check if queue is empty
     bool isEmpty() {
-        return (count == 0);
+        return (rear == nullptr);
     }
 
     // Check if queue is full
@@ -84,10 +115,11 @@ public:
         }
         
         std::cout << "Circular Queue elements: ";
-        int current = front;
+        NodeType* current = rear->link;  // Start from front
+        
         for (int i = 0; i < count; i++) {
-            std::cout << array[current] << " ";
-            current = (current + 1) % capacity;
+            std::cout << current->info << " ";
+            current = current->link;
         }
         std::cout << std::endl;
     }
