@@ -1,17 +1,18 @@
+#pragma once
 #include <iostream>
 
 // Node structure for the linked list
-class NodeType {
+class NodeTypeQueue {
 public:
     char info;
-    NodeType* link;
+    NodeTypeQueue* link;
 };
 
 // Queue class using linked list
 class Queue {
 private:
-    NodeType* queueFront;  // queue's first node (head)
-    NodeType* queueRear;   // queue's last node (tail)
+    NodeTypeQueue* queueFront;  // queue's first node (head)
+    NodeTypeQueue* queueRear;   // queue's last node (tail)
     int count;             // to keep track of number of elements in the queue
 
 public:
@@ -33,7 +34,7 @@ public:
     // Add element to the end of the queue
     void addQueue(char elem) {
         // Create a new node
-        NodeType* newNode = new NodeType;
+        NodeTypeQueue* newNode = new NodeTypeQueue;
         newNode->info = elem;
         newNode->link = nullptr;
 
@@ -59,7 +60,7 @@ public:
         }
 
         // Save front node and its info
-        NodeType* tempNode = queueFront;
+        NodeTypeQueue* tempNode = queueFront;
         char tempInfo = queueFront->info;
 
         // Update front to the next node
@@ -95,7 +96,7 @@ public:
         }
 
         std::cout << "Queue elements: ";
-        NodeType* current = queueFront;
+        NodeTypeQueue* current = queueFront;
         while (current != nullptr) {
             std::cout << current->info << " ";
             current = current->link;
@@ -103,42 +104,3 @@ public:
         std::cout << std::endl;
     }
 };
-
-// Example usage
-int main() {
-    Queue charQueue;
-    
-    // Add elements to the queue
-    charQueue.addQueue('A');
-    charQueue.addQueue('B');
-    charQueue.addQueue('C');
-    
-    // Display queue and its size
-    charQueue.display();
-    std::cout << "Queue size: " << charQueue.size() << std::endl;
-    
-    // Remove elements
-    std::cout << "Removed: " << charQueue.deleteQueue() << std::endl;
-    
-    // Display queue again
-    charQueue.display();
-    std::cout << "Queue size: " << charQueue.size() << std::endl;
-    
-    // Add more elements
-    charQueue.addQueue('D');
-    charQueue.addQueue('E');
-    
-    // Display queue
-    charQueue.display();
-    std::cout << "Queue size: " << charQueue.size() << std::endl;
-    
-    // Empty the queue
-    while (!charQueue.isEmpty()) {
-        std::cout << "Removed: " << charQueue.deleteQueue() << std::endl;
-    }
-    
-    // Check if queue is empty
-    std::cout << "Is queue empty? " << (charQueue.isEmpty() ? "Yes" : "No") << std::endl;
-    
-    return 0;
-}

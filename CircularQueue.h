@@ -1,12 +1,13 @@
+#pragma once
 #include <iostream>
 
 // Node structure for the circular linked list
-class NodeType {
+class NodeTypeCQ {
 public:
     char info;
-    NodeType* link;
+    NodeTypeCQ* link;
     
-    NodeType(char data) {
+    NodeTypeCQ(char data) {
         info = data;
         link = nullptr;
     }
@@ -15,7 +16,7 @@ public:
 // Circular Queue class using linked list
 class CircularQueue {
 private:
-    NodeType* rear;        // Points to the last node (rear of queue)
+    NodeTypeCQ* rear;        // Points to the last node (rear of queue)
     int count;             // Current number of elements
     int capacity;          // Maximum capacity of the queue
 
@@ -42,7 +43,7 @@ public:
             return;
         }
         
-        NodeType* newNode = new NodeType(item);
+        NodeTypeCQ* newNode = new NodeTypeCQ(item);
         
         if (isEmpty()) {
             // First node - points to itself
@@ -66,7 +67,7 @@ public:
             return '\0';
         }
         
-        NodeType* front = rear->link;  // Front is next to rear
+        NodeTypeCQ* front = rear->link;  // Front is next to rear
         char item = front->info;
         
         if (count == 1) {
@@ -115,7 +116,7 @@ public:
         }
         
         std::cout << "Circular Queue elements: ";
-        NodeType* current = rear->link;  // Start from front
+        NodeTypeCQ* current = rear->link;  // Start from front
         
         for (int i = 0; i < count; i++) {
             std::cout << current->info << " ";
@@ -124,43 +125,3 @@ public:
         std::cout << std::endl;
     }
 };
-
-int main() {
-    // Create a circular queue with capacity 5
-    CircularQueue queue(5);
-    
-    // Enqueue operations
-    queue.enqueue('A');
-    queue.enqueue('B');
-    queue.enqueue('C');
-    queue.enqueue('D');
-    queue.enqueue('E');
-    
-    // Queue is full now, this should show overflow message
-    queue.enqueue('F');
-    
-    // Display the queue
-    queue.display();
-    
-    // Dequeue operations
-    std::cout << "Dequeued: " << queue.dequeue() << std::endl;
-    std::cout << "Dequeued: " << queue.dequeue() << std::endl;
-    
-    // Display after dequeue
-    queue.display();
-    
-    // Now we can enqueue more items as space has been freed
-    queue.enqueue('G');
-    queue.enqueue('H');
-    
-    // Display the queue
-    queue.display();
-    
-    // Show front element without removing
-    std::cout << "Front element: " << queue.peek() << std::endl;
-    
-    // Display queue size
-    std::cout << "Queue size: " << queue.size() << std::endl;
-    
-    return 0;
-}

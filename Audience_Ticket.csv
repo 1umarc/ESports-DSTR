@@ -1,0 +1,11 @@
+AudienceID,Name,Email,TicketType,Priority,SeatNumber,IsSeated
+A001,John Doe,john.doe@gmail.com,VIP,1,VIP-001,0
+A002,Jane Smith,jane.smith@yahoo.com,VIP,1,VIP-002,0
+A003,StreamerPro,streamerpro@twitch.tv,Streamer,2,STR-001,0
+A004,GamerGirl,gamergirl@youtube.com,Streamer,2,STR-002,0
+A005,Bob Wilson,bob.wilson@hotmail.com,General,3,GEN-001,0
+A006,Alice Brown,alice.brown@gmail.com,General,3,GEN-002,0
+A007,Charlie Davis,charlie.davis@outlook.com,General,3,GEN-003,0
+A008,Diana Miller,diana.miller@gmail.com,VIP,1,VIP-003,0
+A009,EsportsKing,esportsking@twitch.tv,Streamer,2,STR-003,0
+A010,Frank Johnson,frank.johnson@yahoo.com,General,3,GEN-004,0
