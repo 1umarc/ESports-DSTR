@@ -1,11 +1,9 @@
-PlayerID,Name,Email,University,Ranking,RegistrationDate,IsEarlyBird,IsWildcard,Wins,Losses
-P001,Alex Chen,alex.chen@apu.edu.my,Asia Pacific University,1850,2025-01-15,1,0,12,3
-P002,Sarah Wong,sarah.wong@ucti.edu.my,UCTI,1720,2025-01-16,1,0,10,5
-P003,Michael Tan,michael.tan@mmu.edu.my,Multimedia University,1680,2025-01-20,0,0,8,7
-P004,Emily Lim,emily.lim@sunway.edu.my,Sunway University,1590,2025-01-22,0,1,6,9
-P005,David Kumar,david.kumar@taylor.edu.my,Taylor's University,1520,2025-01-25,0,0,5,10
-P006,Lisa Zhang,lisa.zhang@nottingham.edu.my,University of Nottingham,1480,2025-01-28,0,1,4,11
-P007,Ryan Singh,ryan.singh@monash.edu.my,Monash University,1440,2025-02-01,0,0,3,12
-P008,Amanda Lee,amanda.lee@curtin.edu.my,Curtin University,1400,2025-02-05,0,0,2,13
-P009,Jason Ng,jason.ng@help.edu.my,HELP University,1350,2025-02-08,0,1,1,14
-P010,Rachel Teo,rachel.teo@inti.edu.my,INTI International University,1300,2025-02-10,0,0,0,15
+PlayerID,Name,Email,University,Team,Ranking,RegistrationDate,RegistrationType,Status,Wins,Losses
+P001,Chong Chun Kit,tp077436@mail.apu.edu.my,APU,AMU,1001,2025-05-31,Wildcard,Registered,0,0
+P002,Leo,ln@g.com,UTM,AMU,1002,2025-05-31,Early-Bird,Registered,0,0
+P003,Jonathan Chong,jj@ksi.com,Ligma Uni,Side Men,2000,2025-05-31,Early-Bird,Checked-In,0,0
+P004,Mark,fastgamer@yahoo.com,MMU,LMC,1010,2025-05-31,Regular,Registered,0,0
+P006,Lisa Zhang,lisa.zhang@nottingham.edu.my,University of Nottingham,GDC,1480,2025-05-31,Regular,Registered,0,0
+P007,Odysseus,greekno1@gmail.com,IMU,Greek,1234,2025-05-31,Early-Bird,Registered,0,0
+P008,Athena,owl@gmail.com,IMU,Greek,1111,2025-05-31,Early-Bird,Registered,0,0
+P009,John Doe,jd@yahoo.com,APU,GDC,1234,2025-05-31,Early-Bird,Registered,0,0

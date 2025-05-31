@@ -32,14 +32,14 @@ public:
             getline(ss, players[count].name, ',');
             getline(ss, players[count].email, ',');
             getline(ss, players[count].university, ',');
+            getline(ss, players[count].team, ',');
             getline(ss, field, ','); players[count].ranking = stoi(field);
             getline(ss, players[count].registrationDate, ',');
-            getline(ss, field, ','); players[count].isEarlyBird = (field == "1");
-            getline(ss, field, ','); players[count].isWildcard = (field == "1");
+            getline(ss, players[count].registrationType, ',');
+            getline(ss, players[count].status, ',');
             getline(ss, field, ','); players[count].wins = stoi(field);
             getline(ss, field, ','); players[count].losses = stoi(field);
             
-            players[count].isCheckedIn = false;
             count++;
         }
         file.close();
@@ -54,16 +54,17 @@ public:
             return;
         }
         
-        file << "PlayerID,Name,Email,University,Ranking,RegistrationDate,IsEarlyBird,IsWildcard,Wins,Losses\n";
+        file << "PlayerID,Name,Email,University,Team,Ranking,RegistrationDate,RegistrationType,Status,Wins,Losses\n";
         for (int i = 0; i < count; i++) {
             file << players[i].playerID << ","
                  << players[i].name << ","
                  << players[i].email << ","
                  << players[i].university << ","
+                 << players[i].team << ","
                  << players[i].ranking << ","
                  << players[i].registrationDate << ","
-                 << (players[i].isEarlyBird ? 1 : 0) << ","
-                 << (players[i].isWildcard ? 1 : 0) << ","
+                << players[i].registrationType << ","
+                << players[i].status << ","
                  << players[i].wins << ","
                  << players[i].losses << "\n";
         }
@@ -203,10 +204,10 @@ public:
         return "M" + to_string(rand() % 9000 + 1000);
     }
     
-    // Generate random player ID
-    static string generatePlayerID(int count) {
-        return string("P") + (count < 10 ? "00" : (count < 100 ? "0" : "")) + to_string(count + 1);
-    }
+    // // Generate random player ID
+    // static string generatePlayerID(int count) {
+    //     return string("P") + (count < 10 ? "00" : (count < 100 ? "0" : "")) + to_string(count + 1);
+    // }
     
     // Generate random audience ID
     static string generateAudienceID(int count) {
@@ -253,5 +254,164 @@ public:
         cout << "\nPress Enter to continue...";
         cin.ignore();
         cin.get();
+    }
+
+    // Convert string to lowercase
+    static string toLowerCase(string str) {
+        for (int i = 0; i < str.length(); i++) {
+            str[i] = tolower(str[i]);
+        }
+        return str;
+    }
+
+    // Validate email format (basic check)
+    static bool isValidEmail(const string& email) {
+        // Check if email contains @ and has characters before and after @
+        size_t atPos = email.find('@');
+        if (atPos == string::npos || atPos == 0 || atPos == email.length() - 1) {
+            return false;
+        }
+        
+        // Check if there's a dot after @
+        size_t dotPos = email.find('.', atPos);
+        if (dotPos == string::npos || dotPos == atPos + 1 || dotPos == email.length() - 1) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Get email with validation and convert to lowercase
+    static string getEmailInput() {
+        string email;
+        while (true) {
+            cout << "Enter email: ";
+            getline(cin, email);
+            
+            if (email.empty()) {
+                cout << "Email cannot be empty. Please try again.\n";
+                continue;
+            }
+            
+            if (!isValidEmail(email)) {
+                cout << "Invalid email format. Please enter a valid email (e.g., user@domain.com).\n";
+                continue;
+            }
+            
+            return toLowerCase(email);
+        }
+    }
+
+    // Get ranking with validation
+    static int getRankingInput() {
+        int ranking;
+        while (true) {
+            cout << "Enter ranking (1000-2000): ";
+            cin >> ranking;
+            
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Invalid input! Please enter a number.\n";
+                continue;
+            }
+            
+            if (ranking < 1000 || ranking > 2000) {
+                cout << "Ranking must be between 1000 and 2000. Please try again.\n";
+                continue;
+            }
+            
+            return ranking;
+        }
+    }
+    
+    // Generate random player ID
+    static string generatePlayerID(Player players[], int count) {
+        int maxID = 0;
+        for (int i = 0; i < count; i++) {
+            string idNumStr = players[i].playerID.substr(1); // remove 'P'
+            int idNum = stoi(idNumStr);
+            if (idNum > maxID) maxID = idNum;
+        }
+
+        int newID = maxID + 1;
+
+        string idStr = "P";
+        if (newID < 10) idStr += "00";
+        else if (newID < 100) idStr += "0";
+        idStr += to_string(newID);
+
+        return idStr;
+    }
+};
+
+class TeamManager {
+private:
+    TeamNode* head;
+
+public:
+    TeamManager() {
+        head = nullptr;
+    }
+
+    ~TeamManager() {
+        TeamNode* current = head;
+        while (current) {
+            TeamNode* temp = current;
+            current = current->next;
+            delete temp;
+        }
+    }
+
+    int getTeamCount() {
+        int count = 0;
+        TeamNode* current = head;
+        while (current) {
+            count++;
+            current = current->next;
+        }
+        return count;
+    }
+
+    void getTeamInfo(string teamNames[], int teamCounts[], int& total) {
+        total = 0;
+        TeamNode* current = head;
+        while (current && total < 8) {
+            teamNames[total] = current->teamName;
+            teamCounts[total] = current->playerCount;
+            total++;
+            current = current->next;
+        }
+    }
+
+    bool teamExists(const string& name) {
+        TeamNode* current = head;
+        while (current) {
+            if (current->teamName == name) return true;
+            current = current->next;
+        }
+        return false;
+    }
+
+    bool addPlayerToTeam(const string& name) {
+        TeamNode* current = head;
+        while (current) {
+            if (current->teamName == name) {
+                if (current->playerCount >= 5) return false;
+                current->playerCount++;
+                return true;
+            }
+            current = current->next;
+        }
+        return false;
+    }
+
+    bool createNewTeam(const string& name) {
+        if (getTeamCount() >= 8) return false;
+
+        TeamNode* newNode = new TeamNode(name);
+        newNode->next = head;
+        head = newNode;
+        return true;
     }
 };

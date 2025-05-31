@@ -9,40 +9,52 @@ struct Player {
     string name;
     string email;
     string university;
+    string team; 
     int ranking;
     string registrationDate;
-    bool isCheckedIn;
-    bool isEarlyBird;
-    bool isWildcard;
+    string registrationType; // Replaces isEarlyBird and isWildcard
+    string status;           // Replaces isCheckedIn
     int wins;
     int losses;
-    
+
     Player() {
         playerID = "";
         name = "";
         email = "";
         university = "";
+        team = "";  
         ranking = 0;
         registrationDate = "";
-        isCheckedIn = false;
-        isEarlyBird = false;
-        isWildcard = false;
+        registrationType = "";  // e.g., "Early-Bird", "Wildcard", "Regular"
+        status = "Registered";  // e.g., "Registered", "Checked-In", "Withdrawn"
         wins = 0;
         losses = 0;
     }
-    
-    Player(string id, string n, string e, string uni, int rank, string regDate, bool earlyBird = false, bool wildcard = false) {
+
+    Player(string id, string n, string e, string uni, string t,int rank, string regDate, string regType = "Regular", string stat = "Registered") {
         playerID = id;
         name = n;
         email = e;
         university = uni;
         ranking = rank;
+        team = t;  
         registrationDate = regDate;
-        isCheckedIn = false;
-        isEarlyBird = earlyBird;
-        isWildcard = wildcard;
+        registrationType = regType;
+        status = stat;
         wins = 0;
         losses = 0;
+    }
+};
+
+struct TeamNode {
+    string teamName;
+    int playerCount;
+    TeamNode* next;
+
+    TeamNode(string name) {
+        teamName = name;
+        playerCount = 1;
+        next = nullptr;
     }
 };
 
