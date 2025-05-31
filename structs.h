@@ -68,18 +68,6 @@ struct Team {
     }
 };
 
-struct TeamNode {
-    string teamName;
-    int playerCount;
-    TeamNode* next;
-
-    TeamNode(string name) {
-        teamName = name;
-        playerCount = 1;
-        next = nullptr;
-    }
-};
-
 // Match structure
 struct Match {
     string matchID;
@@ -182,27 +170,6 @@ struct Audience {
     }
 };
 
-// Admin structure
-struct Admin {
-    string adminID;
-    string username;
-    string password;
-    string name;
-    
-    Admin() {
-        adminID = "";
-        username = "";
-        password = "";
-        name = "";
-    }
-    
-    Admin(string id, string user, string pass, string n) {
-        adminID = id;
-        username = user;
-        password = pass;
-        name = n;
-    }
-};
 
 // Match Result structure for logging
 struct MatchResult {
