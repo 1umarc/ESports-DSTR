@@ -1,0 +1,13 @@
+RecordID,TournamentName,Date,TournamentStage,Winner,RunnerUp,WinnerScore,RunnerUpScore,TotalParticipants,Status
+
+    string matchID;
+    string team1ID;
+    string team2ID;
+    string winner;
+    string loser;
+    string matchDate;
+    string stage; // qualifier, group, knockout
+    int team1Score;
+    int team2Score;
+    string duration;
+    

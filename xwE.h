@@ -14,7 +14,6 @@ private:
     MatchResult results[200];
     int resultCount;
     Stack recentMatches;
-    TournamentRecord tournaments[50];
     int tournamentCount;
     Player players[100];
     int playerCount;
@@ -23,72 +22,15 @@ private:
         cout << "\n" << string(60, '=') << endl;
         cout << "    GAME RESULT LOGGING & PERFORMANCE HISTORY" << endl;
         cout << string(60, '=') << endl;
-        cout << "1. Log New Match Result" << endl;
-        cout << "2. View Recent Match Results (Stack)" << endl;
-        cout << "3. View All Match Results" << endl;
-        cout << "4. View Player Performance History" << endl;
-        cout << "5. Generate Tournament Statistics" << endl;
-        cout << "6. Save Tournament Records to File" << endl;
-        cout << "7. Load Tournament Records from File" << endl;
-        cout << "8. Display Tournament Records" << endl;
-        cout << "9. Update Tournament Status" << endl;
+        cout << "1. Store & Review Recent Match Results (Stack)" << endl;
+        cout << "2. View All Match Results" << endl;
+        cout << "3. View Player Performance History" << endl;
+        cout << "4. Generate Tournament Statistics" << endl;
         cout << "0. Return to Main Menu" << endl;
         cout << string(60, '-') << endl;
         cout << "Enter your choice: ";
     }
-    
-    void logNewMatchResult() {
-        cout << "\n=== LOG NEW MATCH RESULT ===" << endl;
-        
-        string matchID, player1, player2, winner, stage;
-        int score1, score2;
-        
-        cout << "Enter Match ID: ";
-        cin >> matchID;
-        
-        cout << "Enter Player 1 ID/Name: ";
-        cin.ignore();
-        getline(cin, player1);
-        
-        cout << "Enter Player 2 ID/Name: ";
-        getline(cin, player2);
-        
-        cout << "Enter Winner ID/Name: ";
-        getline(cin, winner);
-        
-        cout << "Enter Match Stage (qualifier/group/knockout): ";
-        getline(cin, stage);
-        
-        cout << "Enter Player 1 Score: ";
-        cin >> score1;
-        
-        cout << "Enter Player 2 Score: ";
-        cin >> score2;
-        
-        // Create match result
-        MatchResult newResult(matchID, player1, player2, winner, stage, 
-                            Utils::getCurrentTimestamp(), score1, score2);
-        
-        // Add to results array
-        if (resultCount < 200) {
-            results[resultCount] = newResult;
-            resultCount++;
-            
-            // Push match ID to recent matches stack
-            recentMatches.push(matchID[0]); // Using first character of match ID
-            
-            // Update player statistics
-            updatePlayerStats(player1, player2, winner, score1, score2);
-            
-            cout << "\nMatch result logged successfully!" << endl;
-            cout << "Match ID: " << matchID << endl;
-            cout << "Winner: " << winner << endl;
-            cout << "Score: " << score1 << "-" << score2 << endl;
-        } else {
-            cout << "Error: Maximum match results capacity reached!" << endl;
-        }
-    }
-    
+       
     void updatePlayerStats(string player1, string player2, string winner, int score1, int score2) {
         // Find and update player statistics
         for (int i = 0; i < playerCount; i++) {
@@ -217,18 +159,22 @@ private:
         }
         
         // Count matches by stage
-        int qualifierMatches = 0, groupMatches = 0, knockoutMatches = 0;
+        int qualifierMatches = 0, groupMatches = 0, knockoutMatches = 0, finalMatches = 0, wildcardMatches = 0;
         
         for (int i = 0; i < resultCount; i++) {
-            if (results[i].stage == "qualifier") qualifierMatches++;
-            else if (results[i].stage == "group") groupMatches++;
-            else if (results[i].stage == "knockout") knockoutMatches++;
+            if (results[i].stage == "Qualifier") qualifierMatches++;
+            else if (results[i].stage == "Group Stage") groupMatches++;
+            else if (results[i].stage == "Semi-Final") knockoutMatches++;
+            else if (results[i].stage == "Final") finalMatches++;
+            else if (results[i].stage == "Wildcard") wildcardMatches++;
         }
         
         cout << "Match Distribution by Stage:" << endl;
         cout << "- Qualifier matches: " << qualifierMatches << endl;
-        cout << "- Group matches: " << groupMatches << endl;
-        cout << "- Knockout matches: " << knockoutMatches << endl;
+        cout << "- Group Stage matches: " << groupMatches << endl;
+        cout << "- Semi-Final matches: " << knockoutMatches << endl;
+        cout << "- Final matches: " << finalMatches << endl;
+        cout << "- Wildcard matches: " << wildcardMatches << endl;
         cout << "- Total matches: " << resultCount << endl;
         
         // Find most active players
@@ -252,12 +198,12 @@ private:
             avgScore2 /= resultCount;
             
             cout << "\nAverage Match Scores:" << endl;
-            cout << "- Average Player 1 score: " << fixed << setprecision(1) << avgScore1 << endl;
-            cout << "- Average Player 2 score: " << fixed << setprecision(1) << avgScore2 << endl;
+            cout << "- Average Winner score: " << fixed << setprecision(1) << avgScore1 << endl;
+            cout << "- Average Runner-up score: " << fixed << setprecision(1) << avgScore2 << endl;
         }
     }
     
-    void saveResultsToFile() {
+    //void saveResultsToFile() {
         cout << "\n=== SAVE TOURNAMENT RECORDS TO FILE ===" << endl;
         
         ofstream file("Tournament_Record.csv");
@@ -266,57 +212,25 @@ private:
             return;
         }
         
-        // Write header to match the tournament record structure
-        file << "RecordID,TournamentName,Date,Winner,RunnerUp,TotalParticipants,Status\n";
+        // Write header to match the new tournament record structure
+        file << "RecordID,TournamentName,Date,TournamentStage,Winner,RunnerUp,WinnerScore,RunnerUpScore,TotalParticipants,Status\n";
         
         // Write all tournament records
         for (int i = 0; i < tournamentCount; i++) {
             file << tournaments[i].recordID << ","
                  << tournaments[i].tournamentName << ","
                  << tournaments[i].date << ","
+                 << tournaments[i].tournamentStage << ","
                  << tournaments[i].winner << ","
                  << tournaments[i].runnerUp << ","
+                 << tournaments[i].winnerScore << ","
+                 << tournaments[i].runnerUpScore << ","
                  << tournaments[i].totalParticipants << ","
                  << tournaments[i].status << "\n";
         }
         
         file.close();
         cout << "Successfully saved " << tournamentCount << " tournament records to Tournament_Record.csv" << endl;
-    }
-    
-    void loadResultsFromFile() {
-        cout << "\n=== LOAD TOURNAMENT RECORDS FROM FILE ===" << endl;
-        
-        ifstream file("Tournament_Record.csv");
-        if (!file.is_open()) {
-            cout << "Warning: Tournament_Record.csv not found. No previous tournament records loaded." << endl;
-            return;
-        }
-        
-        string line;
-        tournamentCount = 0;
-        
-        // Skip header (RecordID,TournamentName,Date,Winner,RunnerUp,TotalParticipants,Status)
-        getline(file, line);
-        
-        while (getline(file, line) && tournamentCount < 50) {
-            stringstream ss(line);
-            string field;
-            
-            getline(ss, tournaments[tournamentCount].recordID, ',');
-            getline(ss, tournaments[tournamentCount].tournamentName, ',');
-            getline(ss, tournaments[tournamentCount].date, ',');
-            getline(ss, tournaments[tournamentCount].winner, ',');
-            getline(ss, tournaments[tournamentCount].runnerUp, ',');
-            getline(ss, field, ','); 
-            tournaments[tournamentCount].totalParticipants = stoi(field);
-            getline(ss, tournaments[tournamentCount].status, ',');
-            
-            tournamentCount++;
-        }
-        
-        file.close();
-        cout << "Successfully loaded " << tournamentCount << " tournament records from file." << endl;
     }
     
     void displayTournamentRecords() {
@@ -327,67 +241,31 @@ private:
             return;
         }
         
-        cout << string(100, '-') << endl;
-        cout << left << setw(8) << "ID" 
+        cout << string(120, '-') << endl;
+        cout << left << setw(6) << "ID" 
              << setw(25) << "Tournament Name" 
              << setw(12) << "Date"
+             << setw(15) << "Stage"
              << setw(15) << "Winner" 
              << setw(15) << "Runner-up"
-             << setw(12) << "Participants"
+             << setw(8) << "W-Score"
+             << setw(8) << "R-Score"
+             << setw(8) << "Total"
              << setw(12) << "Status" << endl;
-        cout << string(100, '-') << endl;
+        cout << string(120, '-') << endl;
         
         for (int i = 0; i < tournamentCount; i++) {
-            cout << left << setw(8) << tournaments[i].recordID
+            cout << left << setw(6) << tournaments[i].recordID
                  << setw(25) << tournaments[i].tournamentName.substr(0, 24)
                  << setw(12) << tournaments[i].date
+                 << setw(15) << tournaments[i].tournamentStage.substr(0, 14)
                  << setw(15) << tournaments[i].winner.substr(0, 14)
                  << setw(15) << tournaments[i].runnerUp.substr(0, 14)
-                 << setw(12) << tournaments[i].totalParticipants
+                 << setw(8) << tournaments[i].winnerScore
+                 << setw(8) << tournaments[i].runnerUpScore
+                 << setw(8) << tournaments[i].totalParticipants
                  << setw(12) << tournaments[i].status << endl;
         }
-    }
-    
-    void updateTournamentStatus() {
-        cout << "\n=== UPDATE TOURNAMENT STATUS ===" << endl;
-        
-        if (tournamentCount == 0) {
-            cout << "No tournaments found to update." << endl;
-            return;
-        }
-        
-        displayTournamentRecords();
-        
-        string recordID;
-        cout << "\nEnter Tournament Record ID to update: ";
-        cin >> recordID;
-        
-        int index = -1;
-        for (int i = 0; i < tournamentCount; i++) {
-            if (tournaments[i].recordID == recordID) {
-                index = i;
-                break;
-            }
-        }
-        
-        if (index == -1) {
-            cout << "Tournament record not found!" << endl;
-            return;
-        }
-        
-        cout << "Current status: " << tournaments[index].status << endl;
-        cout << "Enter new status (ongoing/completed): ";
-        cin.ignore();
-        getline(cin, tournaments[index].status);
-        
-        if (tournaments[index].status == "completed") {
-            cout << "Enter winner: ";
-            getline(cin, tournaments[index].winner);
-            cout << "Enter runner-up: ";
-            getline(cin, tournaments[index].runnerUp);
-        }
-        
-        cout << "Tournament status updated successfully!" << endl;
     }
 
 public:
@@ -399,7 +277,6 @@ public:
         // Load data from files
         FileManager::loadPlayers(players, playerCount);
         FileManager::loadTournamentRecords(tournaments, tournamentCount);
-        loadResultsFromFile();
     }
     
     ~ResultLogger() {
@@ -425,37 +302,28 @@ public:
             
             switch (choice) {
                 case 1:
-                    logNewMatchResult();
-                    break;
-                case 2:
                     viewRecentMatches();
                     break;
-                case 3:
+                case 2:
                     viewAllResults();
                     break;
-                case 4:
+                case 3:
                     viewPlayerPerformance();
                     break;
-                case 5:
+                case 4:
                     generateTournamentStats();
+                    break;
+                case 5:
+                    displayTournamentRecords();
                     break;
                 case 6:
                     saveResultsToFile();
-                    break;
-                case 7:
-                    loadResultsFromFile();
-                    break;
-                case 8:
-                    displayTournamentRecords();
-                    break;
-                case 9:
-                    updateTournamentStatus();
                     break;
                 case 0:
                     cout << "\nReturning to main menu..." << endl;
                     break;
                 default:
-                    cout << "Invalid choice! Please select 0-9." << endl;
+                    cout << "Invalid choice! Please select 0-6." << endl;
                     break;
             }
             

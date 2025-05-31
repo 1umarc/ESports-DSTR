@@ -69,75 +69,45 @@ struct Team {
 };
 
 // Match structure
-struct Match {
+struct MatchResult {
     string matchID;
-    string player1ID;
-    string player2ID;
+    string team1ID;
+    string team2ID;
     string winner;
     string loser;
     string matchDate;
     string stage; // qualifier, group, knockout
-    int player1Score;
-    int player2Score;
+    int team1Score;
+    int team2Score;
     string duration;
     
-    Match() {
+    MatchResult() {
         matchID = "";
-        player1ID = "";
-        player2ID = "";
+        team1ID = "";
+        team2ID = "";
         winner = "";
         loser = "";
         matchDate = "";
         stage = "";
-        player1Score = 0;
-        player2Score = 0;
+        team1Score = 0;
+        team2Score = 0;
         duration = "";
     }
     
-    Match(string id, string p1, string p2, string date, string stg) {
+    MatchResult(string id, string t1, string t2, string date, string stg) {
         matchID = id;
-        player1ID = p1;
-        player2ID = p2;
+        team1ID = t1;
+        team2ID = t2;
         winner = "";
         loser = "";
         matchDate = date;
         stage = stg;
-        player1Score = 0;
-        player2Score = 0;
+        team1Score = 0;
+        team2Score = 0;
         duration = "";
     }
 };
 
-// Tournament Record structure
-struct TournamentRecord {
-    string recordID;
-    string tournamentName;
-    string date;
-    string winner;
-    string runnerUp;
-    int totalParticipants;
-    string status; // ongoing, completed
-    
-    TournamentRecord() {
-        recordID = "";
-        tournamentName = "";
-        date = "";
-        winner = "";
-        runnerUp = "";
-        totalParticipants = 0;
-        status = "";
-    }
-    
-    TournamentRecord(string id, string name, string d, int participants) {
-        recordID = id;
-        tournamentName = name;
-        date = d;
-        winner = "";
-        runnerUp = "";
-        totalParticipants = participants;
-        status = "ongoing";
-    }
-};
 
 // Audience structure  
 struct Audience {
@@ -170,37 +140,3 @@ struct Audience {
     }
 };
 
-
-// Match Result structure for logging
-struct MatchResult {
-    string matchID;
-    string player1;
-    string player2;
-    string winner;
-    string stage;
-    string timestamp;
-    int score1;
-    int score2;
-    
-    MatchResult() {
-        matchID = "";
-        player1 = "";
-        player2 = "";
-        winner = "";
-        stage = "";
-        timestamp = "";
-        score1 = 0;
-        score2 = 0;
-    }
-    
-    MatchResult(string id, string p1, string p2, string win, string stg, string time, int s1, int s2) {
-        matchID = id;
-        player1 = p1;
-        player2 = p2;
-        winner = win;
-        stage = stg;
-        timestamp = time;
-        score1 = s1;
-        score2 = s2;
-    }
-};

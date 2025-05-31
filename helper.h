@@ -125,7 +125,7 @@ public:
     }
     
     // Read tournament records from CSV
-    static void loadTournamentRecords(TournamentRecord records[], int& count) {
+    static void loadMatchResults(MatchResults results[], int& count) {
         ifstream file("Tournament_Record.csv");
         string line;
         count = 0;
@@ -142,13 +142,13 @@ public:
             stringstream ss(line);
             string field;
             
-            getline(ss, records[count].recordID, ',');
-            getline(ss, records[count].tournamentName, ',');
-            getline(ss, records[count].date, ',');
-            getline(ss, records[count].winner, ',');
-            getline(ss, records[count].runnerUp, ',');
-            getline(ss, field, ','); records[count].totalParticipants = stoi(field);
-            getline(ss, records[count].status, ',');
+            getline(ss, results[count].recordID, ',');
+            getline(ss, results[count].tournamentName, ',');
+            getline(ss, results[count].date, ',');
+            getline(ss, results[count].winner, ',');
+            getline(ss, results[count].runnerUp, ',');
+            getline(ss, field, ','); results[count].totalParticipants = stoi(field);
+            getline(ss, results[count].status, ',');
             
             count++;
         }
@@ -157,7 +157,7 @@ public:
     }
     
     // Save tournament records to CSV
-    static void saveTournamentRecords(TournamentRecord records[], int count) {
+    static void saveMatchResults(TournamentRecord records[], int count) {
         ofstream file("Tournament_Record.csv");
         if (!file.is_open()) {
             cout << "Error: Cannot save to Tournament_Record.csv" << endl;
