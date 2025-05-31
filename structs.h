@@ -46,6 +46,28 @@ struct Player {
     }
 };
 
+// Team structure for tournament progression
+struct Team {
+    string teamName;
+    int playerCount;
+    int wins;
+    int losses;
+    
+    Team() {
+        teamName = "";
+        playerCount = 0;
+        wins = 0;
+        losses = 0;
+    }
+    
+    Team(string name, int count) {
+        teamName = name;
+        playerCount = count;
+        wins = 0;
+        losses = 0;
+    }
+};
+
 struct TeamNode {
     string teamName;
     int playerCount;

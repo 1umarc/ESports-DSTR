@@ -3,7 +3,40 @@ P001,Chong Chun Kit,tp077436@mail.apu.edu.my,APU,AMU,1001,2025-05-31,Wildcard,Re
 P002,Leo,ln@g.com,UTM,AMU,1002,2025-05-31,Early-Bird,Registered,0,0
 P003,Jonathan Chong,jj@ksi.com,Ligma Uni,Side Men,2000,2025-05-31,Early-Bird,Checked-In,0,0
 P004,Mark,fastgamer@yahoo.com,MMU,LMC,1010,2025-05-31,Regular,Registered,0,0
+P005,David Kumar,david.kumar@taylor.edu.my,Taylor's University,-,1520,2025-05-31,Early-Bird,Registered,0,0
 P006,Lisa Zhang,lisa.zhang@nottingham.edu.my,University of Nottingham,GDC,1480,2025-05-31,Regular,Registered,0,0
 P007,Odysseus,greekno1@gmail.com,IMU,Greek,1234,2025-05-31,Early-Bird,Registered,0,0
 P008,Athena,owl@gmail.com,IMU,Greek,1111,2025-05-31,Early-Bird,Registered,0,0
 P009,John Doe,jd@yahoo.com,APU,GDC,1234,2025-05-31,Early-Bird,Registered,0,0
+P010,Ethan Lim,ethan.lim@um.edu.my,UM,AMU,1100,2025-05-31,Regular,Registered,0,0
+P011,Karen Tan,karen.tan@utm.my,UTM,AMU,1122,2025-05-31,Regular,Registered,0,0
+P012,Isaac Lee,isaac.lee@monash.edu.my,Monash University,AMU,1155,2025-05-31,Wildcard,Registered,0,0
+P013,Chen Wei,chen.wei@apex.my,USM,LMC,1015,2025-05-31,Early-Bird,Registered,0,0
+P014,Darren Yong,darren.yong@apex.my,USM,LMC,1020,2025-05-31,Regular,Registered,0,0
+P015,Samuel Goh,samg@mmu.edu.my,MMU,LMC,1050,2025-05-31,Early-Bird,Registered,0,0
+P016,Zara Kamal,zara@ukm.edu.my,UKM,LMC,1080,2025-05-31,Wildcard,Registered,0,0
+P017,Mira Nordin,mira.nordin@nottingham.edu.my,University of Nottingham,GDC,1400,2025-05-31,Regular,Registered,0,0
+P018,Alex Teo,alex.teo@upm.edu.my,UPM,GDC,1350,2025-05-31,Regular,Registered,0,0
+P019,Fatima Yusof,fatima.yusof@apex.my,USM,GDC,1320,2025-05-31,Wildcard,Registered,0,0
+P020,Rachel Wong,rachel.wong@taylors.edu.my,Taylor's University,GDC,1500,2025-05-31,Early-Bird,Registered,0,0
+P021,Hercules,herc@greek.com,IMU,Greek,1200,2025-05-31,Early-Bird,Registered,0,0
+P022,Ares,ares@greek.com,IMU,Greek,1190,2025-05-31,Wildcard,Registered,0,0
+P023,Hera,hera@greek.com,IMU,Greek,1175,2025-05-31,Regular,Registered,0,0
+P024,Zeus,zeus@olympus.com,IMU,Greek,1222,2025-05-31,Early-Bird,Registered,0,0
+P025,Simon Low,low.simon@ligma.edu.my,Ligma Uni,Side Men,2020,2025-05-31,Regular,Registered,0,0
+P026,Nathan Sim,nathan.sim@ligma.edu.my,Ligma Uni,Side Men,1990,2025-05-31,Regular,Registered,0,0
+P027,Benjamin Lee,benj@ligma.edu.my,Ligma Uni,Side Men,1980,2025-05-31,Wildcard,Registered,0,0
+P028,Adrian Khoo,adriankhoo@ligma.edu.my,Ligma Uni,Side Men,1950,2025-05-31,Early-Bird,Registered,0,0
+P029,Kenji Tan,kenji@upsi.edu.my,UPSI,Red Titans,1550,2025-05-31,Regular,Registered,0,0
+P030,Jason Ho,jason.ho@upsi.edu.my,UPSI,Red Titans,1580,2025-05-31,Early-Bird,Registered,0,0
+P031,Raymond Chia,ray.chia@ukm.edu.my,UKM,Red Titans,1570,2025-05-31,Regular,Registered,0,0
+P032,Andy Choo,andy.choo@ukm.edu.my,UKM,Red Titans,1590,2025-05-31,Wildcard,Registered,0,0
+P033,Isabelle Chin,isabelle.chin@ukm.edu.my,UKM,Red Titans,1600,2025-05-31,Early-Bird,Registered,0,0
+P034,Kevin Yap,kevin.yap@sunway.edu.my,Sunway University,Blue Hawks,1430,2025-05-31,Regular,Registered,0,0
+P035,Lydia Toh,lydia.toh@sunway.edu.my,Sunway University,Blue Hawks,1425,2025-05-31,Early-Bird,Registered,0,0
+P036,Ng Jun Wei,jun.wei@apu.edu.my,APU,Blue Hawks,1410,2025-05-31,Regular,Registered,0,0
+P037,Emily Liew,emily.liew@apu.edu.my,APU,Blue Hawks,1450,2025-05-31,Regular,Registered,0,0
+P038,Daniel Ng,daniel.ng@apu.edu.my,APU,Blue Hawks,1445,2025-05-31,Early-Bird,Registered,0,0
+P039,Tan Jia Wei,tan.jw@apu.edu.my,APU,Crimson Wolves,1300,2025-05-31,Regular,Registered,0,0
+P040,Samantha Goh,samantha.goh@apu.edu.my,APU,Crimson Wolves,1310,2025-05-31,Wildcard,Registered,0,0
+P041,Harith Aziz,harith.aziz@apu.edu.my,APU,Crimson Wolves,1325,2025-05-31,Early-Bird,Registered,0,0
