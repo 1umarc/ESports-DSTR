@@ -125,56 +125,76 @@ public:
     }
     
     // Read tournament records from CSV
-    static void loadMatchResults(MatchResults results[], int& count) {
-        ifstream file("Tournament_Record.csv");
+    static void loadMatchResults(MatchResults results[], int& count) 
+    {
+        ifstream file("Match_Results.csv");
         string line;
         count = 0;
         
-        if (!file.is_open()) {
-            cout << "Warning: Tournament_Record.csv not found. Using empty tournament database." << endl;
+        if (!file.is_open()) 
+        {
+            cout << "Warning: Match_Results.csv not found." << endl;
             return;
         }
         
         // Skip header
         getline(file, line);
         
-        while (getline(file, line) && count < 50) {
+        while (getline(file, line) && count < 50) 
+        {
             stringstream ss(line);
-            string field;
-            
-            getline(ss, results[count].recordID, ',');
-            getline(ss, results[count].tournamentName, ',');
-            getline(ss, results[count].date, ',');
+            string field; 
+        
+            getline(ss, results[count].matchID, ',');
+            getline(ss, results[count].team1ID, ',');
+            getline(ss, results[count].team2ID, ',');
             getline(ss, results[count].winner, ',');
-            getline(ss, results[count].runnerUp, ',');
-            getline(ss, field, ','); results[count].totalParticipants = stoi(field);
-            getline(ss, results[count].status, ',');
+            getline(ss, results[count].loser, ',');
+            getline(ss, results[count].matchDate, ',');
+            getline(ss, results[count].stage, ',');
+        
+            // Read numeric fields
+            getline(ss, field, ','); 
+            results[count].team1Score = stoi(field);
+            
+            getline(ss, field, ','); 
+            results[count].team2Score = stoi(field);
+            
+            getline(ss, results[count].duration, ',');
             
             count++;
         }
         file.close();
-        cout << "Loaded " << count << " tournament records from database." << endl;
+        cout << "Loaded " << count << " Match result from database." << endl;
     }
     
     // Save tournament records to CSV
-    static void saveMatchResults(TournamentRecord records[], int count) {
-        ofstream file("Tournament_Record.csv");
-        if (!file.is_open()) {
-            cout << "Error: Cannot save to Tournament_Record.csv" << endl;
+    static void saveMatchResults(MatchResults results[], int count) 
+    {
+        ofstream file("Match_Results.csv");
+        if (!file.is_open()) 
+        {
+            cout << "Error: Cannot save to Match_Results.csv" << endl;
             return;
         }
         
-        file << "RecordID,TournamentName,Date,Winner,RunnerUp,TotalParticipants,Status\n";
-        for (int i = 0; i < count; i++) {
-            file << records[i].recordID << ","
-                 << records[i].tournamentName << ","
-                 << records[i].date << ","
-                 << records[i].winner << ","
-                 << records[i].runnerUp << ","
-                 << records[i].totalParticipants << ","
-                 << records[i].status << "\n";
+        file << "MatchID,Team1ID,Team2ID,Winner,Loser,MatchDate,Stage,Team1Score,Team2Score,Duration\n";
+        
+        for (int i = 0; i < count; i++) 
+        {
+            file << results[i].matchID << ","
+                << results[i].team1ID << ","
+                << results[i].team2ID << ","
+                << results[i].winner << ","
+                << results[i].loser << ","
+                << results[i].matchDate << ","
+                << results[i].stage << ","
+                << results[i].team1Score << ","
+                << results[i].team2Score << ","
+                << results[i].duration << "\n";
         }
         file.close();
+        cout << "Saved " << count << " match results to database." << endl;
     }
 };
 
