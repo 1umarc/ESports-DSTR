@@ -11,10 +11,12 @@ using namespace std;
 class RegistrationManager {
 private:
     Player players[100];
+    string teamNames[8];
+    int teamCounts[8];
+    int totalTeams = 0;
     int playerCount;
     Queue normalQueue;
     PriorityQueue priorityQueue;
-    TeamManager teamManager;
     
     void displayMenu() {
         cout << "\n" << string(60, '=') << endl;
@@ -98,8 +100,14 @@ private:
         newPlayer.wins = 0;
         newPlayer.losses = 0;
 
+        if (newPlayer.registrationType == "Wildcard") {
+            newPlayer.team = "Bench";  
+        }
+
         // Add player to array first
         players[playerCount++] = newPlayer;
+
+        loadTeamsFromPlayers();
 
         // Queue based on priority
         if (newPlayer.registrationType == "Early-Bird")
@@ -112,99 +120,123 @@ private:
         cout << "Player registered successfully on " << newPlayer.registrationDate << endl;
 
         // Team assignment loop
-        while (true) {
-            string teamNames[8];
-            int teamCounts[8];
-            int totalTeams = 0;
 
-            teamManager.getTeamInfo(teamNames, teamCounts, totalTeams);
+        if (newPlayer.registrationType != "Wildcard") {
+            while (true) {
+                // Remove these local variable declarations:
+                // string teamNames[8];
+                // int teamCounts[8]; 
+                // int totalTeams = 0;
 
-            cout << "\n--- Team Assignment ---\n";
-            cout << "1. Create New Team\n2. Join Existing Team\nEnter option: ";
-            int option;
-            cin >> option;
-            cin.ignore();
+                loadTeamsFromPlayers(); // This updates the class member variables
 
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(1000, '\n');
-                cout << "Invalid input! Please enter 1 or 2.\n";
-                continue;
-            }
-
-            if (option == 1) {
-                if (totalTeams >= 8) {
-                    cout << "Maximum number of teams (8) already exists.\n";
-                    continue;
-                }
-
-                string newTeamName;
-                cout << "Enter new team name: ";
-                getline(cin, newTeamName);
-                
-                if (newTeamName.empty()) {
-                    cout << "Team name cannot be empty.\n";
-                    continue;
-                }
-
-                if (teamManager.teamExists(newTeamName)) {
-                    cout << "Team already exists. Try joining it instead.\n";
-                    continue;
-                }
-
-                if (teamManager.createNewTeam(newTeamName)) {
-                    players[playerCount - 1].team = newTeamName;
-                    cout << "Team '" << newTeamName << "' created and player assigned!\n";
-                    break;
-                } else {
-                    cout << "Failed to create new team.\n";
-                }
-            }
-            else if (option == 2) {
-                int availableTeams = 0;
-                cout << "\nAvailable teams with slots:\n";
-                for (int i = 0; i < totalTeams; ++i) {
-                    if (teamCounts[i] < 5) {
-                        cout << (i + 1) << ". " << teamNames[i] << " (" << teamCounts[i] << "/5)\n";
-                        availableTeams++;
-                    }
-                }
-
-                if (availableTeams == 0) {
-                    cout << "No teams with available slots. You must create a new team.\n";
-                    continue;
-                }
-
-                cout << "Enter team number to join: ";
-                int choice;
-                cin >> choice;
+                cout << "\n--- Team Assignment ---\n";
+                cout << "1. Create New Team\n2. Join Existing Team\nEnter option: ";
+                int option;
+                cin >> option;
                 cin.ignore();
-                
+
                 if (cin.fail()) {
                     cin.clear();
                     cin.ignore(1000, '\n');
-                    cout << "Invalid input! Please enter a number.\n";
+                    cout << "Invalid input! Please enter 1 or 2.\n";
                     continue;
                 }
 
-                if (choice >= 1 && choice <= totalTeams && teamCounts[choice - 1] < 5) {
-                    string selected = teamNames[choice - 1];
-                    if (teamManager.addPlayerToTeam(selected)) {
-                        players[playerCount - 1].team = selected;
-                        cout << "Player added to team '" << selected << "' successfully!\n";
-                        break;
-                    } else {
-                        cout << "Team is full. Try another.\n";
+                if (option == 1) {
+                    if (totalTeams >= 8) {
+                        cout << "Maximum number of teams (8) already exists.\n";
+                        continue;
                     }
-                } else {
-                    cout << "Invalid selection.\n";
+
+                    string newTeamName;
+                    cout << "Enter new team name: ";
+                    getline(cin, newTeamName);
+                    
+                    if (newTeamName.empty()) {
+                        cout << "Team name cannot be empty.\n";
+                        continue;
+                    }
+
+                    bool exists = false;
+                    for (int i = 0; i < totalTeams; i++) {
+                        if (teamNames[i] == newTeamName) {
+                            exists = true;
+                            break;
+                        }
+                    }
+
+                    if (exists) {
+                        cout << "Team name already exists. Please choose a different name.\n";
+                        continue;
+                    }
+
+                    if (totalTeams < 8) {
+                        teamNames[totalTeams] = newTeamName;
+                        teamCounts[totalTeams] = 1;
+                        totalTeams++;
+                        players[playerCount - 1].team = newTeamName;
+                        cout << "Team '" << newTeamName << "' created and player assigned!\n";
+                        break;
+                    }
+                }
+                else if (option == 2) {
+                    int availableTeams = 0;
+                    cout << "\nAvailable teams:\n";
+                    
+                    // Show all teams (both full and available)
+                    for (int i = 0; i < totalTeams; ++i) {
+                        cout << (i + 1) << ". " << teamNames[i] << " (" << teamCounts[i] << "/5)";
+                        if (teamCounts[i] < 5) {
+                            cout << " - Available";
+                            availableTeams++;
+                        } else {
+                            cout << " - Full";
+                        }
+                        cout << "\n";
+                    }
+
+                    if (availableTeams == 0) {
+                        cout << "No teams with available slots. You must create a new team.\n";
+                        continue;
+                    }
+
+                    cout << "Enter team number to join: ";
+                    int choice;
+                    cin >> choice;
+                    cin.ignore();
+                    
+                    if (cin.fail()) {
+                        cin.clear();
+                        cin.ignore(1000, '\n');
+                        cout << "Invalid input! Please enter a number.\n";
+                        continue;
+                    }
+
+                    if (choice >= 1 && choice <= totalTeams) {
+                        if (teamCounts[choice - 1] < 5) {
+                            string selected = teamNames[choice - 1];
+                            
+                            // Assign team to player
+                            players[playerCount - 1].team = selected;
+                            
+                            // Increment team member count
+                            teamCounts[choice - 1]++;
+                            
+                            cout << "Player added to team '" << selected << "' successfully!\n";
+                            break;
+                        } else {
+                            cout << "Team is full. Please choose a team with available slots.\n";
+                        }
+                    } else {
+                        cout << "Invalid selection. Please choose a valid team number.\n";
+                    }
+                }
+                else {
+                    cout << "Invalid option. Please enter 1 or 2.\n";
                 }
             }
-            else {
-                cout << "Invalid option. Please enter 1 or 2.\n";
-            }
         }
-
         // Save players to CSV AFTER team assignment is complete
         FileManager::savePlayers(players, playerCount);
     }
@@ -511,23 +543,37 @@ private:
         cout << "New player: " << replacement.name << " | Team: " << replacement.team << "\n";
     }
 
+    void loadTeamsFromPlayers() {
+        totalTeams = 0;
+        for (int i = 0; i < playerCount; i++) {
+            string team = players[i].team;
+
+            if (team.empty() || team == "Bench") continue;
+
+            bool found = false;
+            for (int j = 0; j < totalTeams; j++) {
+                if (teamNames[j] == team) {
+                    teamCounts[j]++;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found && totalTeams < 8) {
+                teamNames[totalTeams] = team;
+                teamCounts[totalTeams] = 1;
+                totalTeams++;
+            }
+        }
+    }
+
+
 
 public:
     RegistrationManager() {
         playerCount = 0;
         FileManager::loadPlayers(players, playerCount);
-
-        // Rebuild team data from loaded players
-        for (int i = 0; i < playerCount; i++) {
-            string team = players[i].team;
-            if (!team.empty()) {
-                if (!teamManager.teamExists(team)) {
-                    teamManager.createNewTeam(team);
-                } else {
-                    teamManager.addPlayerToTeam(team);
-                }
-            }
-        }
+        loadTeamsFromPlayers();
     }
     
     void runTask() {
