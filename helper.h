@@ -125,7 +125,7 @@ public:
     }
     
     // Read tournament records from CSV
-    static void loadMatchResults(MatchResults results[], int& count) 
+    static void loadMatchResults(MatchResult results[], int& count) 
     {
         ifstream file("Match_Results.csv");
         string line;
@@ -152,14 +152,8 @@ public:
             getline(ss, results[count].loser, ',');
             getline(ss, results[count].matchDate, ',');
             getline(ss, results[count].stage, ',');
-        
-            // Read numeric fields
-            getline(ss, field, ','); 
-            results[count].team1Score = stoi(field);
-            
-            getline(ss, field, ','); 
-            results[count].team2Score = stoi(field);
-            
+            getline(ss, field, ','); results[count].team1Score = stoi(field);
+            getline(ss, field, ','); results[count].team2Score = stoi(field);
             getline(ss, results[count].duration, ',');
             
             count++;
@@ -169,7 +163,7 @@ public:
     }
     
     // Save tournament records to CSV
-    static void saveMatchResults(MatchResults results[], int count) 
+    static void saveMatchResults(MatchResult results[], int count) 
     {
         ofstream file("Match_Results.csv");
         if (!file.is_open()) 
