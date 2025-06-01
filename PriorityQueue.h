@@ -91,11 +91,11 @@ public:
     {
         if (isEmpty()) 
         {
-            cout << "Priority Queue is empty" << endl;
+            cout << "[CONSOLE LOG] Priority Queue is empty" << endl;
             return;
         }
         
-        cout << "Priority Queue contents (highest to lowest priority): ";
+        cout << "[CONSOLE LOG] Priority Queue contents (highest to lowest priority): ";
         PQNode* current = head;
         while (current != nullptr) 
         {

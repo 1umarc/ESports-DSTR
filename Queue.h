@@ -109,11 +109,11 @@ public:
     {
         if (isEmpty()) 
         {
-            cout << "Queue is empty." << endl;
+            cout << "[CONSOLE LOG] Queue is empty." << endl;
             return;
         }
 
-        cout << "Queue elements: ";
+        cout << "[CONSOLE LOG] Queue elements: ";
         QNode* current = queueFront;
         while (current != nullptr)
         {

@@ -100,11 +100,11 @@ public:
     {
         if (isEmpty()) 
         {
-            cout << "Stack is empty" << endl;
+            cout << "[CONSOLE LOG] Stack is empty" << endl;
             return;
         }
         
-        cout << "Stack contents (top to bottom): ";
+        cout << "[CONSOLE LOG] Stack contents (top to bottom): ";
         SNode* current = head;
         while (current != nullptr) 
         {

@@ -2,10 +2,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <limits>
-#include "task1.h"
-#include "task2.h"
-#include "task3.h"
-#include "task4.h"
+#include "task1_luven.h"
+#include "task2_chunkit.h"
+#include "task3_nesya.h"
+#include "task4_xiaowen.h"
 
 using namespace std;
 

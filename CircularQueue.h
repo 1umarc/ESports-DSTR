@@ -136,11 +136,11 @@ public:
     {
         if (isEmpty()) 
         {
-            cout << "Queue is empty" << endl;
+            cout << "[CONSOLE LOG] Queue is empty" << endl;
             return;
         }
         
-        cout << "Circular Queue elements: ";
+        cout << "[CONSOLE LOG] Circular Queue elements: ";
         CQNode* current = rear->link;  // Start from front
         
         for (int i = 0; i < count; i++) 

@@ -43,7 +43,6 @@ public:
             count++;
         }
         file.close();
-        cout << "Loaded " << count << " players from database." << endl;
     }
     
     // Save players to CSV
@@ -85,7 +84,7 @@ public:
         // Skip header
         getline(file, line);
         
-        while (getline(file, line) && count < 100) {
+        while (getline(file, line) && count < 1000) {
             stringstream ss(line);
             string field;
             
@@ -100,7 +99,6 @@ public:
             count++;
         }
         file.close();
-        cout << "Loaded " << count << " audience members from database." << endl;
     }
     
     // Save audience to CSV
@@ -159,7 +157,6 @@ public:
             count++;
         }
         file.close();
-        cout << "Loaded " << count << " Match result from database." << endl;
     }
 
     // Read tournament records from string
@@ -214,7 +211,6 @@ public:
                 << results[i].duration << "\n";
         }
         file.close();
-        cout << "Saved " << count << " match results to database." << endl;
     }
 };
 
