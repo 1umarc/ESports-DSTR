@@ -613,9 +613,12 @@ private:
             cout << "PRIZE DISTRIBUTION (Based on Match Wins):" << endl;
             
             string places[] = {"1st", "2nd", "3rd"};
+            double prizes[] = {firstPrize, secondPrize, thirdPrize};
+            
             for (int i = 0; i < 3 && i < teamCount; i++) 
             {
-                cout << places[i] << " Place: " << teams[i] << endl;
+                cout << places[i] << " Place: " << teams[i] << " - $" 
+                    << fixed << setprecision(2) << prizes[i] << endl;
             }
             
             cout << "\n=== PERFORMANCE BONUSES ===" << endl;
