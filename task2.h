@@ -12,7 +12,7 @@ class RegistrationManager {
 private:
     Player players[50];
     string teamNames[8];
-    int teamCounts[5];
+    int teamCounts[8];
     int totalTeams = 0;
     int playerCount;
     Queue normalQueue;  // FIFO queue for regular players
@@ -40,6 +40,7 @@ private:
         cout << "1. Check-In Player" << endl;
         cout << "2. Replace Withdrawn Player" << endl;
         cout << "3. Register Wildcard Player" << endl;
+        cout << "4. View All Registered Players" << endl;
         cout << "0. Back to Main Menu" << endl;
         cout << string(60, '-') << endl;
         cout << "Enter your choice: ";
@@ -844,51 +845,9 @@ public:
         // Save updated player list to CSV
         FileManager::savePlayers(players, playerCount);
     }
-    
-    void run(string id) {
-        int choice;
-        string currentPlayerID = id; 
-        
-        do {
-            displayPlayerMenu();
-            cin >> choice;
-            
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(1000, '\n');
-                cout << "Invalid input! Please enter a number." << endl;
-                continue;
-            }
-            
-            switch (choice) {
-                case 1:
-                    checkInPlayer(currentPlayerID);
-                    break;
-                case 2:
-                    viewAllPlayers();
-                    break;
-                case 3:
-                    handleWithdrawal();
-                    break;
-                case 0:
-                    cout << "Returning to main menu..." << endl;
-                    break;
-                default:
-                    cout << "Invalid option! Please try again." << endl;
-                    break;
-            }
-            
-            if (choice != 0) {
-                Utils::pauseScreen();
-            }
-            
-        } while (choice != 0);
-    }
 
     void adminMenu()
     {
-        replacePlayer();
-        registerWildcardPlayer();
 
         int choice;
         

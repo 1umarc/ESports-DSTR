@@ -224,7 +224,7 @@ void adminMenu() {
                 ms.runAdmin();
                 break;
             case 2: {
-                rm.run(currentPlayerID);
+                rm.adminMenu();
                 break;
             }
             case 3: {
@@ -269,7 +269,7 @@ void playerMenu() {
                 ms.runPlayer();
                 break;
             case 2:
-                rm.run(currentPlayerID);
+                rm.playerMenu(currentPlayerID);
                 break;
             case 3: {
                 rl.runPlayer();
