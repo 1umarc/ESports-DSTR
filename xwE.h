@@ -32,25 +32,27 @@ private:
     
     // Function 1: Store & Review Recent Match Results (Stack)
     void storeAndReviewRecentMatches() {
-        cout << "\n=== STORE & REVIEW RECENT MATCH RESULTS (STACK) ===" << endl;
-        
-        // Automatically save all stack results to CSV first
-        FileManager::saveMatchResults(results, resultCount);
-        cout << "All match results automatically saved to CSV!" << endl;
-        
-        // Then display recent matches from stack
-        cout << "\n--- RECENT MATCHES FROM STACK ---" << endl;
+        cout << "\n" << string(60, '=') << endl;
+        cout << "    STORE & REVIEW RECENT MATCH RESULTS (STACK)" << endl;
+        cout << string(60, '=') << endl;
+    
+        cout << "--- RECENT MATCHES STACK DISPLAY ---" << endl;
         
         if (recentMatches.isEmpty()) {
             cout << "No recent matches in stack!" << endl;
-            return;
+        } else {
+            cout << "Stack size: " << recentMatches.size() << " matches" << endl;
+            cout << "Stack contents using Stack.display() method:" << endl;
+            // Display match results contents using Stack class method
+            recentMatches.display(); 
         }
+        cout << string(50, '-') << endl;
         
-        cout << "Stack contents (most recent first):" << endl;
-        recentMatches.display();
+        // Automatically save all stack results to CSV
+        FileManager::saveMatchResults(results, resultCount);
         
-        // Display detailed recent match results
-        cout << "\nDetailed Recent Match Results:" << endl;
+        // Display detailed recent match results in tabular format
+        cout << "\n--- DETAILED RECENT MATCH RESULTS (STACK) ---" << endl;
         cout << string(110, '-') << endl;
         cout << left << setw(9) << "Match ID" 
              << setw(15) << "Team 1" 
@@ -64,16 +66,21 @@ private:
         
         // Display last 5 matches (most recent)
         int displayCount = (resultCount > 5) ? 5 : resultCount;
-        for (int i = resultCount - 1; i >= resultCount - displayCount && i >= 0; i--) {
-            cout << left << setw(9) << results[i].matchID
-                 << setw(15) << results[i].team1ID.substr(0, 15)
-                 << setw(15) << results[i].team2ID.substr(0, 15)
-                 << setw(15) << results[i].winner.substr(0, 15)
-                 << setw(8) << (to_string(results[i].team1Score) + "-" + to_string(results[i].team2Score))
-                 << setw(15) << results[i].stage.substr(0, 14)
-                 << setw(12) << results[i].matchDate
-                 << setw(10) << results[i].duration << endl;
+        if (displayCount > 0) {
+            for (int i = resultCount - 1; i >= resultCount - displayCount && i >= 0; i--) {
+                cout << left << setw(9) << results[i].matchID
+                     << setw(15) << results[i].team1ID.substr(0, 14)
+                     << setw(15) << results[i].team2ID.substr(0, 14)
+                     << setw(15) << results[i].winner.substr(0, 14)
+                     << setw(8) << (to_string(results[i].team1Score) + "-" + to_string(results[i].team2Score))
+                     << setw(15) << results[i].stage.substr(0, 14)
+                     << setw(12) << results[i].matchDate
+                     << setw(10) << results[i].duration << endl;
+            }
+        } else {
+            cout << "No detailed match results available." << endl;
         }
+        cout << string(110, '=') << endl;
     }
 
     // Function 2: View All Match Results
@@ -259,23 +266,17 @@ private:
         }
     }
 
-    // Function 4: Generate Tournament Statistics
+    // Function 4: Generate Tournament Statistics - MODIFIED VERSION
     void generateTournamentStats() 
     {
-        cout << "\n=== TOURNAMENT STATISTICS ===" << endl;
-        
-        // Load latest match results
-        FileManager::loadMatchResults(results, resultCount);
-        
-        if (resultCount == 0) {
-            cout << "No match data available for statistics." << endl;
-            return;
-        }
-        
+        cout << string(45, '=') << endl;
+        cout << "    COMPREHENSIVE TOURNAMENT STATISTICS    " << endl;
+        cout << string(45, '=') << endl;
+
         cout << "=== OVERALL TOURNAMENT SUMMARY ===" << endl;
         cout << "Total Matches Played: " << resultCount << endl;
         cout << "Total Players Registered: " << playerCount << endl;
-        cout << string(60, '-') << endl;
+        cout << "Recent Matches in Stack: " << recentMatches.size() << endl;
         
         // 1. Match Distribution by Stage
         int qualifierMatches = 0, groupMatches = 0, knockoutMatches = 0;
@@ -316,7 +317,29 @@ private:
         cout << "Lowest Score in Tournament: " << minScore << endl;
         cout << "Closest Match Score Difference: " << closestMatch << endl;
         
-        // 3. Most Successful Teams/Players
+        // 3. Stack-Based Recent Match Analysis
+        cout << "\n=== RECENT MATCH ANALYSIS (FROM STACK) ===" << endl;
+        cout << "Stack Size: " << recentMatches.size() << " matches" << endl;
+        
+        if (!recentMatches.isEmpty()) {
+            cout << "Most Recent Match ID: " << recentMatches.peek() << endl;
+            
+            // Analyze recent matches performance
+            int recentWins = 0, recentLosses = 0;
+            for (int i = resultCount - 1; i >= resultCount - recentMatches.size() && i >= 0; i--) {
+                // Count different types of results in recent matches
+                if (results[i].team1Score > results[i].team2Score) recentWins++;
+                else recentLosses++;
+            }
+            
+            cout << "Recent Match Outcomes Analysis:" << endl;
+            cout << "- Higher scoring team wins: " << recentWins << endl;
+            cout << "- Lower scoring team wins: " << recentLosses << endl;
+        } else {
+            cout << "No recent matches in stack for analysis." << endl;
+        }
+        
+        // 4. Most Successful Teams/Players
         cout << "\n=== MOST SUCCESSFUL PARTICIPANTS ===" << endl;
         
         // Count wins for each participant
@@ -363,7 +386,7 @@ private:
             cout << (i + 1) << ". " << winners[i] << " (" << winCounts[i] << " wins)" << endl;
         }
 
-        // 4. Prize Pool Distribution for Top 3
+        // 5. Prize Pool Distribution for Top 3
         cout << "\n=== PRIZE POOL DISTRIBUTION ===" << endl;
         
         if (uniqueWinners >= 3) {
@@ -377,11 +400,11 @@ private:
             cout << string(50, '-') << endl;
             cout << "PRIZE DISTRIBUTION:" << endl;
             cout << "1st Place: " << left << setw(20) << winners[0] 
-                 << " - $" << firstPrize << " (" << winCounts[0] << " wins)" << endl;
+                << " - $" << firstPrize << " (" << winCounts[0] << " wins)" << endl;
             cout << "2nd Place: " << left << setw(20) << winners[1] 
-                 << " - $" << secondPrize << " (" << winCounts[1] << " wins)" << endl;
+                << " - $" << secondPrize << " (" << winCounts[1] << " wins)" << endl;
             cout << "3rd Place: " << left << setw(20) << winners[2] 
-                 << " - $" << thirdPrize << " (" << winCounts[2] << " wins)" << endl;
+                << " - $" << thirdPrize << " (" << winCounts[2] << " wins)" << endl;
             
             // Calculate performance bonus
             cout << "\n=== PERFORMANCE BONUSES ===" << endl;
@@ -399,7 +422,7 @@ private:
                 
                 if (performanceBonus > 0) {
                     cout << winners[i] << " - Performance Bonus: $" << fixed << setprecision(2) 
-                         << performanceBonus << " (for " << winCounts[i] << " wins)" << endl;
+                        << performanceBonus << " (for " << winCounts[i] << " wins)" << endl;
                 }
             }
             
@@ -407,6 +430,10 @@ private:
             cout << "Insufficient participants for full prize distribution." << endl;
             cout << "Need at least 3 winners for complete prize pool allocation." << endl;
         }
+        
+        cout << "\n" << string(60, '=') << endl;
+        cout << "    STACK-BASED TOURNAMENT ANALYSIS COMPLETE" << endl;
+        cout << string(60, '=') << endl;
     }
     
     // Helper functions
@@ -440,10 +467,24 @@ public:
         FileManager::loadPlayers(players, playerCount);
         FileManager::loadMatchResults(results, resultCount);
         
-        // Initialize stack with recent matches
-        for (int i = 0; i < resultCount && i < 10; i++) {
-            if (!results[i].matchID.empty()) {
-                recentMatches.push(results[i].matchID[0]);
+        // Initialize stack with recent matches with complete details
+        for (int i = 0; i < resultCount && i < 10; i++) 
+        {
+            if (!results[i].matchID.empty()) 
+            {
+                // Create complete match details string
+                string completeDetails = results[i].matchID + "," + 
+                                    results[i].team1ID + "," + 
+                                    results[i].team2ID + "," + 
+                                    results[i].winner + "," + 
+                                    results[i].loser + "," + 
+                                    results[i].matchDate + "," + 
+                                    results[i].stage + "," + 
+                                    to_string(results[i].team1Score) + "," + 
+                                    to_string(results[i].team2Score) + "," + 
+                                    results[i].duration;
+                
+                recentMatches.push(completeDetails);
             }
         }
     }
