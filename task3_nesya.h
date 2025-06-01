@@ -540,142 +540,213 @@ private:
     }
     
     void manageCircularOverflowQueue() {
-        // Update counts first
-        updateSpectatorCounts();
-        
-        // If audience exceeds capacity, fill overflowQueue from spectatorCircularQueue
-        if (currentSpectators > maxTotalCapacity && overflowQueue.isEmpty()) {
-            cout << "*** OVERFLOW MANAGEMENT REQUIRED ***" << endl;
-            cout << "Total audiences (" << currentSpectators << ") exceed capacity limit of " << maxTotalCapacity << "." << endl;
-            cout << "Populating overflow queue from circular spectator queue..." << endl;
+    // Update counts first
+    updateSpectatorCounts();
+    
+    // Check if total registered audience exceeds capacity (CSV file check)
+    if (audienceCount > maxTotalCapacity && overflowQueue.isEmpty()) {
+        cout << "*** OVERFLOW MANAGEMENT REQUIRED ***" << endl;
+        cout << "Total registered audience (" << audienceCount << ") exceeds capacity limit of " << maxTotalCapacity << "." << endl;
+        cout << "Populating overflow queue from excess audience members..." << endl;
 
-            // Copy all spectators from circular queue to overflow queue
-            CircularQueue temp = spectatorCircularQueue;
-            totalOverflow = 0;
+        // Calculate how many audience members exceed the capacity
+        int excessCount = audienceCount - maxTotalCapacity;
+        totalOverflow = 0;
 
-            int size = temp.size();
-            for (int i = 0; i < size; i++) {
-                string spectator = temp.dequeue();
-                if (!overflowQueue.isFull()) {
-                    overflowQueue.enqueue(spectator);
-                    totalOverflow++;
-                } else {
-                    cout << "OverflowQueue is full. Could not add: " << spectator << endl;
-                }
+        // Add excess audience members to overflow queue
+        // Start from the capacity limit onwards (index maxTotalCapacity)
+        for (int i = maxTotalCapacity; i < audienceCount && !overflowQueue.isFull(); i++) {
+            // Convert ticket type to spectator type for display
+            string spectatorType = audience[i].ticketType;
+            if (spectatorType == "Streamer") {
+                spectatorType = "Influencer";
             }
 
-            cout << "Overflow queue populated with " << totalOverflow << " spectators." << endl;
+            // Determine viewing mode based on ticket type
+            string viewingMode;
+            if (audience[i].ticketType == "Online") {
+                viewingMode = "Online";
+            } else {
+                viewingMode = "Physical";
+            }
+
+            // Create spectator info string
+            string spectatorInfo = audience[i].audienceID + " " + audience[i].name +
+                                  " (" + spectatorType + ", " + viewingMode + ")";
+
+            overflowQueue.enqueue(spectatorInfo);
+            totalOverflow++;
+            cout << "Added to overflow: " << spectatorInfo << endl;
         }
 
-        if (overflowQueue.isEmpty()) {
-            cout << "No spectators in overflow queue." << endl;
-            return;
+        cout << "Overflow queue populated with " << totalOverflow << " excess audience members." << endl;
+    }
+    // Also check if currently seated spectators exceed capacity (original check)
+    else if (currentSpectators > maxTotalCapacity && overflowQueue.isEmpty()) {
+        cout << "*** OVERFLOW MANAGEMENT REQUIRED ***" << endl;
+        cout << "Currently seated spectators (" << currentSpectators << ") exceed capacity limit of " << maxTotalCapacity << "." << endl;
+        cout << "Populating overflow queue from circular spectator queue..." << endl;
+
+        // Copy all spectators from circular queue to overflow queue
+        CircularQueue temp = spectatorCircularQueue;
+        totalOverflow = 0;
+
+        int size = temp.size();
+        for (int i = 0; i < size; i++) {
+            string spectator = temp.dequeue();
+            if (!overflowQueue.isFull()) {
+                overflowQueue.enqueue(spectator);
+                totalOverflow++;
+            } else {
+                cout << "OverflowQueue is full. Could not add: " << spectator << endl;
+            }
         }
 
-        bool managing = true;
-        while (managing && !overflowQueue.isEmpty()) {
-            cout << "\nSpectators in waiting list (Overflow Queue - FIFO order):" << endl;
-            overflowQueue.display();
-            cout << "Total in overflow: " << totalOverflow << endl;
+        cout << "Overflow queue populated with " << totalOverflow << " spectators." << endl;
+    }
 
-            cout << "\nOverflow Management Options:" << endl;
-            cout << "1. Process next overflow spectator" << endl;
-            cout << "2. View overflow queue status" << endl;
-            cout << "3. Clear overflow queue" << endl;
-            cout << "4. Process all overflow spectators" << endl;
-            cout << "5. Exit overflow management" << endl;
-            cout << "Enter choice: ";
+    if (overflowQueue.isEmpty() && audienceCount <= maxTotalCapacity) {
+        cout << "No overflow management needed." << endl;
+        cout << "Total registered audience: " << audienceCount << "/" << maxTotalCapacity << endl;
+        return;
+    }
 
-            int choice;
-            cin >> choice;
+    bool managing = true;
+    while (managing && !overflowQueue.isEmpty()) {
+        cout << "\nSpectators in waiting list (Overflow Queue - FIFO order):" << endl;
+        overflowQueue.display();
+        cout << "Total in overflow: " << totalOverflow << endl;
+        cout << "Total registered audience: " << audienceCount << endl;
+        cout << "Maximum total capacity: " << maxTotalCapacity << endl;
 
-            switch (choice) {
-                case 1: {
-                    if (!overflowQueue.isEmpty() && currentSpectators < maxTotalCapacity) {
-                        string nextSpectator = overflowQueue.dequeue();
-                        totalOverflow--;
+        cout << "\nOverflow Management Options:" << endl;
+        cout << "1. Process next overflow spectator" << endl;
+        cout << "2. View overflow queue status" << endl;
+        cout << "3. Clear overflow queue" << endl;
+        cout << "4. Process all overflow spectators" << endl;
+        cout << "5. Exit overflow management" << endl;
+        cout << "Enter choice: ";
 
-                        bool seated = false;
-                        if (currentPhysicalSeated < maxTotalPhysicalCapacity) {
-                            currentPhysicalSeated++;
-                            currentSpectators++;
-                            seated = true;
-                            cout << "Seated from overflow: " << nextSpectator << " (Physical)" << endl;
-                        } else if (currentOnlineViewers < maxOnlineCapacity) {
-                            currentOnlineViewers++;
-                            currentSpectators++;
-                            seated = true;
-                            cout << "Seated from overflow: " << nextSpectator << " (Online)" << endl;
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                if (!overflowQueue.isEmpty() && currentSpectators < maxTotalCapacity) {
+                    string nextSpectator = overflowQueue.dequeue();
+                    totalOverflow--;
+
+                    bool seated = false;
+                    if (currentPhysicalSeated < maxTotalPhysicalCapacity) {
+                        currentPhysicalSeated++;
+                        currentSpectators++;
+                        seated = true;
+                        cout << "Seated from overflow: " << nextSpectator << " (Physical)" << endl;
+                    } else if (currentOnlineViewers < maxOnlineCapacity) {
+                        currentOnlineViewers++;
+                        currentSpectators++;
+                        seated = true;
+                        cout << "Seated from overflow: " << nextSpectator << " (Online)" << endl;
+                    }
+
+                    if (!seated) {
+                        if (!overflowQueue.isFull()) {
+                            overflowQueue.enqueue(nextSpectator);
+                            totalOverflow++;
                         }
-
-                        if (!seated) {
-                            if (!overflowQueue.isFull()) {
-                                overflowQueue.enqueue(nextSpectator);
-                                totalOverflow++;
-                            }
-                            cout << "Cannot process: All capacities still full." << endl;
-                        }
+                        cout << "Cannot process: All capacities still full." << endl;
                     } else {
-                        cout << "Cannot process: Queue empty or total capacity reached." << endl;
-                    }
-                    break;
-                }
-
-                case 2:
-                    viewCapacityStatus();
-                    break;
-
-                case 3: {
-                    int cleared = 0;
-                    while (!overflowQueue.isEmpty()) {
-                        overflowQueue.dequeue();
-                        cleared++;
-                    }
-                    totalOverflow = 0;
-                    cout << "Overflow queue cleared. Removed " << cleared << " spectators." << endl;
-                    break;
-                }
-
-                case 4: {
-                    int processed = 0;
-                    while (!overflowQueue.isEmpty() && currentSpectators < maxTotalCapacity &&
-                           (currentPhysicalSeated < maxTotalPhysicalCapacity ||
-                            currentOnlineViewers < maxOnlineCapacity)) {
-
-                        string nextSpectator = overflowQueue.dequeue();
-                        totalOverflow--;
-                        processed++;
-
-                        if (currentPhysicalSeated < maxTotalPhysicalCapacity) {
-                            currentPhysicalSeated++;
-                            currentSpectators++;
-                            cout << "Seated from overflow: " << nextSpectator << " (Physical)" << endl;
-                        } else if (currentOnlineViewers < maxOnlineCapacity) {
-                            currentOnlineViewers++;
-                            currentSpectators++;
-                            cout << "Seated from overflow: " << nextSpectator << " (Online)" << endl;
+                        // Update the corresponding audience member's seated status
+                        string audienceID = nextSpectator.substr(0, nextSpectator.find(' '));
+                        int index = Utils::findAudienceIndex(audience, audienceCount, audienceID);
+                        if (index != -1) {
+                            audience[index].isSeated = true;
+                            FileManager::saveAudience(audience, audienceCount);
                         }
                     }
-                    cout << "Processed " << processed << " spectators from overflow." << endl;
-                    if (!overflowQueue.isEmpty()) {
-                        cout << "Remaining in overflow: " << totalOverflow << endl;
-                    }
-                    break;
+                } else {
+                    cout << "Cannot process: Queue empty or total capacity reached." << endl;
                 }
-
-                case 5:
-                    managing = false;
-                    break;
-
-                default:
-                    cout << "Invalid choice." << endl;
-                    break;
+                break;
             }
-        }
 
-        if (overflowQueue.isEmpty()) {
-            cout << "Overflow queue is now empty. Management complete." << endl;
+            case 2:
+                viewCapacityStatus();
+                cout << "\nOverflow Status:" << endl;
+                cout << "Total registered audience: " << audienceCount << endl;
+                cout << "Maximum capacity: " << maxTotalCapacity << endl;
+                cout << "Excess audience: " << (audienceCount > maxTotalCapacity ? audienceCount - maxTotalCapacity : 0) << endl;
+                cout << "Currently in overflow queue: " << totalOverflow << endl;
+                break;
+
+            case 3: {
+                int cleared = 0;
+                while (!overflowQueue.isEmpty()) {
+                    overflowQueue.dequeue();
+                    cleared++;
+                }
+                totalOverflow = 0;
+                cout << "Overflow queue cleared. Removed " << cleared << " spectators." << endl;
+                break;
+            }
+
+            case 4: {
+                int processed = 0;
+                while (!overflowQueue.isEmpty() && currentSpectators < maxTotalCapacity &&
+                       (currentPhysicalSeated < maxTotalPhysicalCapacity ||
+                        currentOnlineViewers < maxOnlineCapacity)) {
+
+                    string nextSpectator = overflowQueue.dequeue();
+                    totalOverflow--;
+                    processed++;
+
+                    bool seated = false;
+                    if (currentPhysicalSeated < maxTotalPhysicalCapacity) {
+                        currentPhysicalSeated++;
+                        currentSpectators++;
+                        seated = true;
+                        cout << "Seated from overflow: " << nextSpectator << " (Physical)" << endl;
+                    } else if (currentOnlineViewers < maxOnlineCapacity) {
+                        currentOnlineViewers++;
+                        currentSpectators++;
+                        seated = true;
+                        cout << "Seated from overflow: " << nextSpectator << " (Online)" << endl;
+                    }
+
+                    if (seated) {
+                        // Update the corresponding audience member's seated status
+                        string audienceID = nextSpectator.substr(0, nextSpectator.find(' '));
+                        int index = Utils::findAudienceIndex(audience, audienceCount, audienceID);
+                        if (index != -1) {
+                            audience[index].isSeated = true;
+                        }
+                    }
+                }
+                
+                if (processed > 0) {
+                    FileManager::saveAudience(audience, audienceCount);
+                }
+                
+                cout << "Processed " << processed << " spectators from overflow." << endl;
+                if (!overflowQueue.isEmpty()) {
+                    cout << "Remaining in overflow: " << totalOverflow << endl;
+                }
+                break;
+            }
+
+            case 5:
+                managing = false;
+                break;
+
+            default:
+                cout << "Invalid choice." << endl;
+                break;
         }
+    }
+
+    if (overflowQueue.isEmpty()) {
+        cout << "Overflow queue is now empty. Management complete." << endl;
+    }
     }
     
     // Modified removeSpectator() function
