@@ -10,9 +10,6 @@
 
 using namespace std;
 
-// ============================================================================
-// SPECTATOR AND STREAMING CLASSES
-// ============================================================================
 
 // Enhanced Spectator class
 class Spectator {
@@ -45,34 +42,7 @@ public:
     }
 };
 
-// Streaming Slot class for managing live streaming setups
-class StreamingSlot {
-public:
-    int slotNumber;
-    string streamerName;
-    string platform; // "Twitch", "YouTube", "Facebook", etc.
-    string timeSlot;
-    bool isActive;
-    int viewerCount;
-    
-    StreamingSlot() : slotNumber(0), streamerName(""), platform(""), 
-                      timeSlot(""), isActive(false), viewerCount(0) {}
-    
-    StreamingSlot(int slot, const string& name, const string& plat, const string& time)
-        : slotNumber(slot), streamerName(name), platform(plat), timeSlot(time), 
-          isActive(false), viewerCount(0) {}
-    
-    void displayInfo() const {
-        cout << "Slot " << slotNumber << ": " << streamerName 
-             << " (" << platform << ") | Time: " << timeSlot
-             << " | Active: " << (isActive ? "Yes" : "No")
-             << " | Viewers: " << viewerCount << endl;
-    }
-};
-
-// ============================================================================
 // ENHANCED SPECTATOR MANAGER CLASS
-// ============================================================================
 
 class SpectatorManager {
 private:
@@ -125,9 +95,7 @@ private:
         cout << "Enter your choice: ";
     }
     
-    // ========================================================================
     // ENHANCED LIVESTREAM AND SPECTATOR MANAGEMENT METHODS
-    // ========================================================================
     
     void buyTicketJoinAudience() {
     if (audienceCount >= 100) {
@@ -136,7 +104,7 @@ private:
     }
     
     Audience newAudience;
-    cout << "\n=== TICKET PURCHASE & AUDIENCE REGISTRATION ===" << endl;
+    cout << "\n=== TICKET PURCHASE & AUTOMATIC QUEUE ASSIGNMENT ===" << endl;
     
     newAudience.audienceID = Utils::generateAudienceID(audienceCount);
     
@@ -176,6 +144,7 @@ private:
         cin >> ticketChoice;
     }
     
+    // Set ticket type and priority based on choice
     switch (ticketChoice) {
         case 1:
             newAudience.ticketType = "VIP";
@@ -190,54 +159,64 @@ private:
             totalInfluencers++;
             break;
         case 3:
-            newAudience.ticketType = "General";
-            newAudience.priority = 3;
-            newAudience.seatNumber = "GEN-" + to_string(audienceCount + 1);
-            totalGeneral++;
-            break;
         default:
-            cout << "Invalid choice! Setting as General ticket." << endl;
             newAudience.ticketType = "General";
             newAudience.priority = 3;
             newAudience.seatNumber = "GEN-" + to_string(audienceCount + 1);
             totalGeneral++;
+            if (ticketChoice != 3) {
+                cout << "Invalid choice! Setting as General ticket." << endl;
+            }
             break;
     }
     
     newAudience.isSeated = false;
     
-    // Store audience member
+    // Store audience member in array
     audience[audienceCount] = newAudience;
+    audienceCount++;
     totalSpectators++;
     
-    // FIXED: Add to priority queue with proper format
+    // Create spectator info string for queues
     string spectatorInfo = newAudience.audienceID + " " + newAudience.name + 
                           " (" + newAudience.ticketType + ", " + viewingMode + ")";
+    
+    // Add to Priority Queue with proper priority
     spectatorPriorityQueue.enqueue(spectatorInfo, newAudience.priority);
     
-    // Also add to seating queue for legacy compatibility
-    seatingQueue.enqueue(newAudience.audienceID[3]); // Use last character of ID
+    // Add to Circular Seating Queue for legacy compatibility
+    // Use the full audience ID instead of just the last character
+    seatingQueue.enqueue(newAudience.audienceID);
     
-    audienceCount++;
-    
-    cout << "\n=== TICKET PURCHASE SUCCESSFUL ===" << endl;
+    cout << "\n=== TICKET PURCHASE & QUEUE ASSIGNMENT SUCCESSFUL ===" << endl;
     cout << "Audience ID: " << newAudience.audienceID << endl;
     cout << "Name: " << newAudience.name << endl;
     cout << "Ticket Type: " << newAudience.ticketType << " (Priority: " << newAudience.priority << ")" << endl;
     cout << "Viewing Mode: " << viewingMode << endl;
     cout << "Assigned Seat: " << newAudience.seatNumber << endl;
-    cout << "Status: Added to priority queue for seating" << endl;
+    cout << "Added to Priority Queue: Yes (Priority " << newAudience.priority << ")" << endl;
+    cout << "Added to Seating Queue: Yes" << endl;
     
+    // Save to file
     FileManager::saveAudience(audience, audienceCount);
     
     cout << "\nCurrent Queue Status:" << endl;
-    cout << "Total in priority queue: " << totalSpectators << endl;
+    cout << "Total spectators in priority queue: " << totalSpectators << endl;
     cout << "VIPs: " << totalVIPs << ", Influencers: " << totalInfluencers << ", General: " << totalGeneral << endl;
+    cout << "Priority Queue size: " << spectatorPriorityQueue.size() << endl;
+    cout << "Seating Queue size: " << seatingQueue.size() << endl;
+    
+    // Display current priority queue status
+    cout << "\nCurrent Priority Queue Contents:" << endl;
+    spectatorPriorityQueue.display();
+    
+    cout << "\nCurrent Seating Queue Contents:" << endl;
+    seatingQueue.display();
     }
     
     void seatAudienceMember() {
         string audienceID;
-        cout << "\n=== SEAT AUDIENCE MEMBER (LEGACY METHOD) ===" << endl;
+        cout << "\n=== SEAT AUDIENCE MEMBER ===" << endl;
         cout << "Enter Audience ID: ";
         cin >> audienceID;
         
@@ -432,8 +411,8 @@ private:
                 cout << "Seated #" << seatedCount << " (" << seatType << "): " << spectatorInfo << endl;
             } else {
                 // Move to overflow queue
-                char spectatorChar = spectatorInfo[0];
-                overflowQueue.enqueue(spectatorChar);
+                string spectatorStr = spectatorInfo;
+                overflowQueue.enqueue(spectatorStr);
                 totalOverflow++;
                 cout << "-> Moved to overflow: " << spectatorInfo << " (Capacity reached)" << endl;
             }
@@ -481,7 +460,7 @@ private:
         switch (choice) {
             case 1:
                 if (!overflowQueue.isEmpty()) {
-                    char nextSpectator = overflowQueue.dequeue();
+                    string nextSpectator = overflowQueue.dequeue();
                     totalOverflow--;
                     
                     // Try to seat based on available capacity
@@ -533,7 +512,7 @@ private:
                            (currentPhysicalSeated < maxTotalPhysicalCapacity || 
                             currentOnlineViewers < maxOnlineCapacity)) {
                         
-                        char nextSpectator = overflowQueue.dequeue();
+                        string nextSpectator = overflowQueue.dequeue();
                         totalOverflow--;
                         processedFromOverflow++;
                         
@@ -604,7 +583,7 @@ private:
         
         // Try to seat someone from overflow queue
         if (!overflowQueue.isEmpty()) {
-            char nextSpectator = overflowQueue.dequeue();
+            string nextSpectator = overflowQueue.dequeue();
             totalOverflow--;
             
             // Try to seat based on available capacity
