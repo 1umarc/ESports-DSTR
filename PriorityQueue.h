@@ -3,7 +3,8 @@
 #include <string>
 using namespace std;
 
-class PQNode {
+class PQNode 
+{
 public:
     string data;
     int priority;
@@ -12,7 +13,8 @@ public:
     PQNode(const string& d, int p) : data(d), priority(p), next(nullptr) {}
 };
 
-class PriorityQueue {
+class PriorityQueue 
+{
 private:
     PQNode* head;
     int count;
@@ -20,20 +22,24 @@ private:
 public:
     PriorityQueue() : head(nullptr), count(0) {}
     
-    ~PriorityQueue() {
-        while (head) {
+    ~PriorityQueue() 
+    {
+        while (head) 
+        {
             PQNode* temp = head;
             head = head->next;
             delete temp;
         }
     }
     
-    void enqueue(const string& item, int priority) {
+    void enqueue(const string& item, int priority) 
+    {
         PQNode* newNode = new PQNode(item, priority);
         
         // Insert at head if queue is empty or new node has highest priority
         // Higher priority value = higher priority (1 > 2 > 3)
-        if (!head || priority < head->priority) {
+        if (!head || priority < head->priority) 
+        {
             newNode->next = head;
             head = newNode;
             count++;
@@ -42,7 +48,8 @@ public:
         
         // Find the correct position to insert
         PQNode* current = head;
-        while (current->next && current->next->priority <= priority) {
+        while (current->next && current->next->priority <= priority) 
+        {
             current = current->next;
         }
         
@@ -51,7 +58,8 @@ public:
         count++;
     }
     
-    string dequeue() {
+    string dequeue() 
+    {
         if (!head) return "";
         
         string result = head->data;
@@ -63,28 +71,34 @@ public:
         return result;
     }
     
-    string peek() {
+    string peek() 
+    {
         if (!head) return "";
         return head->data;
     }
     
-    bool isEmpty() { 
+    bool isEmpty() 
+    { 
         return head == nullptr; 
     }
     
-    int size() {
+    int size() 
+    {
         return count;
     }
     
-    void display() {
-        if (isEmpty()) {
+    void display() 
+    {
+        if (isEmpty()) 
+        {
             cout << "Priority Queue is empty" << endl;
             return;
         }
         
         cout << "Priority Queue contents (highest to lowest priority): ";
         PQNode* current = head;
-        while (current != nullptr) {
+        while (current != nullptr) 
+        {
             cout << "[" << current->data << " (P:" << current->priority << ")] ";
             current = current->next;
         }

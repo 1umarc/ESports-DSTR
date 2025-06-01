@@ -1,46 +1,64 @@
 #pragma once
 #include <iostream>
+#include <string>
 using namespace std;
 
-class StackNode {
+// Node structure for the stack
+class SNode 
+{
 public:
-    char data;
-    StackNode* next;
+    string data;
+    SNode* next;
     
-    StackNode(char new_data) {
+    // Constructor to initialize the node
+    SNode(const string& new_data) 
+    {
         this->data = new_data;
         this->next = nullptr;
     }
 };
 
-class Stack {
+class Stack 
+{
 private:
-    StackNode* head;
-    int count;
+    SNode* head;  // Head of the stack
+    int count;    // Number of items in the stack
 
 public:
-    Stack() { 
+    // Constructor to initialize the stack
+    Stack() 
+    { 
         this->head = nullptr; 
         this->count = 0;
     }
     
-    ~Stack() {
-        while (!isEmpty()) {
+    // Destructor to deallocate memory
+    ~Stack() 
+    {
+        while (!isEmpty()) 
+        {
             pop();
         }
     }
 
-    bool isEmpty() {
+    // Check if the stack is empty
+    bool isEmpty() 
+    {
         return head == nullptr;
     }
     
-    int size() {
+    // Return the number of items in the stack
+    int size() 
+    {
         return count;
     }
 
-    void push(char new_data) {
-        StackNode* new_node = new StackNode(new_data);
-        if (!new_node) {
+    // Add an item to the stack
+    void push(const string& new_data) 
+    {
+        SNode* new_node = new SNode(new_data);
+        if (!new_node) 
+        {
             cout << "\nStack Overflow";
             return;
         }
@@ -49,35 +67,47 @@ public:
         count++;
     }
 
-    void pop() {
-        if (this->isEmpty()) {
+    // Remove an item from the stack
+    void pop() 
+    {
+        if (this->isEmpty()) 
+        {
             cout << "\nStack Underflow" << endl;
-        } else {
-            StackNode* temp = head;
+        } 
+        else 
+        {
+            SNode* temp = head;
             head = head->next;
             delete temp;
             count--;
         }
     }
 
-    char peek() {
+    // Return the top item of the stack
+    string peek() 
+    {
         if (!isEmpty())
             return head->data;
-        else {
+        else 
+        {
             cout << "\nStack is empty";
-            return '\0';
+            return "";
         }
     }
     
-    void display() {
-        if (isEmpty()) {
+    // Display the stack contents
+    void display() 
+    {
+        if (isEmpty()) 
+        {
             cout << "Stack is empty" << endl;
             return;
         }
         
         cout << "Stack contents (top to bottom): ";
-        StackNode* current = head;
-        while (current != nullptr) {
+        SNode* current = head;
+        while (current != nullptr) 
+        {
             cout << current->data << " ";
             current = current->next;
         }

@@ -1,48 +1,59 @@
 #pragma once
 #include <iostream>
+#include <string>
+using namespace std;
 
 // Node structure for the linked list
-class NodeTypeQueue {
+class QNode 
+{
 public:
-    char info;
-    NodeTypeQueue* link;
+    string info;
+    QNode* link;
 };
 
 // Queue class using linked list
-class Queue {
+class Queue 
+{
 private:
-    NodeTypeQueue* queueFront;  // queue's first node (head)
-    NodeTypeQueue* queueRear;   // queue's last node (tail)
-    int count;             // to keep track of number of elements in the queue
+    QNode* queueFront;  // queue's first node (head)
+    QNode* queueRear;   // queue's last node (tail)
+    int count;          // to keep track of number of elements in the queue
 
 public:
     // Constructor
-    Queue() {
+    Queue() 
+    {
         queueFront = nullptr;
         queueRear = nullptr;
         count = 0;
     }
 
     // Destructor
-    ~Queue() {
+    ~Queue() 
+    {
         // Delete all nodes in the queue
-        while (!isEmpty()) {
+        while (!isEmpty()) 
+        {
             deleteQueue();
         }
     }
 
     // Add element to the end of the queue
-    void addQueue(char elem) {
+    void addQueue(const string& elem)
+    {
         // Create a new node
-        NodeTypeQueue* newNode = new NodeTypeQueue;
+        QNode* newNode = new QNode;
         newNode->info = elem;
         newNode->link = nullptr;
 
         // If queue is empty, front and rear point to the new node
-        if (isEmpty()) {
+        if (isEmpty()) 
+        {
             queueFront = newNode;
             queueRear = newNode;
-        } else {
+        } 
+        else 
+        {
             // Otherwise, add node to the end and update rear
             queueRear->link = newNode;
             queueRear = newNode;
@@ -53,21 +64,24 @@ public:
     }
 
     // Delete the first node and return its info
-    char deleteQueue() {
-        if (isEmpty()) {
-            std::cout << "Queue is empty. Cannot delete element." << std::endl;
-            return '\0';  // Return null character for empty queue
+    string deleteQueue() 
+    {
+        if (isEmpty()) 
+        {
+            cout << "Queue is empty. Cannot delete element." << endl;
+            return "";  // Return empty string for empty queue
         }
 
         // Save front node and its info
-        NodeTypeQueue* tempNode = queueFront;
-        char tempInfo = queueFront->info;
+        QNode* tempNode = queueFront;
+        string tempInfo = queueFront->info;
 
         // Update front to the next node
         queueFront = queueFront->link;
 
         // If queue becomes empty, update rear to nullptr as well
-        if (queueFront == nullptr) {
+        if (queueFront == nullptr)
+        {
             queueRear = nullptr;
         }
 
@@ -79,28 +93,33 @@ public:
     }
 
     // Check if queue is empty
-    bool isEmpty() {
+    bool isEmpty() 
+    {
         return (queueFront == nullptr);
     }
 
     // Return number of elements in the queue
-    int size() {
+    int size() 
+    {
         return count;
     }
 
     // Display all elements in the queue
-    void display() {
-        if (isEmpty()) {
-            std::cout << "Queue is empty." << std::endl;
+    void display() 
+    {
+        if (isEmpty()) 
+        {
+            cout << "Queue is empty." << endl;
             return;
         }
 
-        std::cout << "Queue elements: ";
-        NodeTypeQueue* current = queueFront;
-        while (current != nullptr) {
-            std::cout << current->info << " ";
+        cout << "Queue elements: ";
+        QNode* current = queueFront;
+        while (current != nullptr)
+        {
+            cout << current->info << " ";
             current = current->link;
         }
-        std::cout << std::endl;
+        cout << endl;
     }
 };
