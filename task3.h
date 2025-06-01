@@ -100,7 +100,7 @@ private:
         cout << "\n" << string(70, '=') << endl;
         cout << "    LIVE STREAM & SPECTATOR QUEUE MANAGEMENT" << endl;
         cout << string(70, '=') << endl;
-        cout << "1.  Buy Ticket & Join Audience" << endl;
+        cout << "1.  Watch Live Stream" << endl;
         cout << "0.  Back to Main Menu" << endl;
         cout << string(70, '-') << endl;
         cout << "Enter your choice: ";
@@ -142,7 +142,7 @@ private:
         totalPhysicalSpectators = currentPhysicalSeated;
         totalOnline = currentOnlineViewers;
     }
-    
+public:   
     void buyTicketJoinAudience() {
         // Check total capacity first
         if (currentSpectators >= maxTotalCapacity) {
@@ -316,7 +316,7 @@ private:
         cout << "VIPs: " << totalVIPs << "/" << maxVIPCapacity << ", Influencers: " << totalInfluencers << "/" << maxInfluencerCapacity << ", General: " << totalGeneral << "/" << maxGeneralCapacity << endl;
         cout << "Online viewers: " << currentOnlineViewers << "/" << maxOnlineCapacity << endl;
     }
-    
+private:   
     void seatAudienceMember() {
         string audienceID;
         cout << "\n=== SEAT AUDIENCE MEMBER ===" << endl;
@@ -1041,6 +1041,38 @@ void viewCapacityStatus() {
     cout << string(70, '=') << endl;
 }
 
+void watchLiveStream() {
+    cout << "\n" << string(80, '=') << endl;
+    cout << "                    LIVE STREAM - E-SPORTS TOURNAMENT" << endl;
+    cout << string(80, '=') << endl;
+    cout << "                     KNOCKOUT STAGE - 3RD PLACE MATCH" << endl;
+    cout << "                            SIDEMEN vs AMU" << endl;
+    cout << endl; 
+    
+    // Stream display box
+    cout << string(80, '*') << endl;
+    cout << "*" << string(78, ' ') << "*" << endl;
+    cout << "*" << string(25, ' ') << "LIVE STREAM ACTIVE" << string(30, ' ') << endl;
+    cout << "*" << string(78, ' ') << "*" << endl;
+    cout << "*  TEAM SIDEMEN              vs              TEAM AMU          " << endl;
+    cout << "*" << string(78, ' ') << "*" << endl;
+    cout << "*         [Score: 2]                        [Score: 1]        " << endl;
+    cout << "*" << string(78, ' ') << "*" << endl;
+    cout << "*                        GAME 3 OF 5                          " << endl;
+    cout << "*                      CURRENT MAP: DUST2                     " << endl;
+    cout << "*                    TIME: 12:34 / 30:00                      " << endl;
+    cout << "*" << string(78, ' ') << "*" << endl;
+    
+    cout << "*" << string(78, ' ') << "*" << endl;
+    cout << "*  LIVE COMMENTARY:                                           " << endl;
+    cout << "*  'Incredible clutch play by Benjamin Lee! That was a        " << endl;
+    cout << "*   4K round that could turn the tide of this match!'        " << endl;
+    cout << "*" << string(78, ' ') << "*" << endl;
+    cout << "*                    [STREAM QUALITY: 1080p HD]               " << endl;
+    cout << "*" << string(78, ' ') << "*" << endl;
+    cout << string(80, '*') << endl; 
+}
+
 public:
     SpectatorManager() : spectatorCircularQueue(50), seatingQueue(50), overflowQueue(50) {
         // Initialize audience array
@@ -1091,7 +1123,7 @@ public:
             
             switch (choice) {
                 case 1:
-                    buyTicketJoinAudience();
+                    watchLiveStream();
                     break;
                 default:
                     cout << "Invalid choice! Please try again." << endl;
