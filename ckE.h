@@ -24,13 +24,13 @@ private:
         cout << string(60, '=') << endl;
         cout << "1. Register New Player" << endl;
         cout << "2. Check-In Player" << endl;
-        cout << "3. View Registration Queue" << endl;
-        cout << "4. Process Next Player in Queue" << endl;
+        cout << "3. Last-Minute Check-In" << endl;
+        cout << "4. Check Team Status" << endl;
         cout << "5. View All Registered Players" << endl;
-        cout << "6. Process All Priority Registrations" << endl;
-        cout << "7. Handle Player Withdrawal" << endl;
-        cout << "8. Display Queue Statistics" << endl;
-        cout << "9. Replace Withdrawn Player\n";
+        cout << "6. Handle Player Withdrawal" << endl;
+        cout << "7. Replace Withdrawn Player (ADMIN)" << endl;
+        cout << "8. Register Wildcard Player (ADMIN)" << endl;
+        cout << "9. displayQueueStats" << endl;   
         cout << "0. Back to Main Menu" << endl;
         cout << string(60, '-') << endl;
         cout << "Enter your choice: ";
@@ -75,34 +75,16 @@ private:
 
         newPlayer.registrationDate = Utils::getCurrentDate();
 
-        int typeChoice;
-        do {
-            cout << "Registration Type:\n1. Early-Bird\n2. Wildcard\n3. Regular\nChoose: ";
-            cin >> typeChoice;
-            
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(1000, '\n');
-                cout << "Invalid input! Please enter 1, 2, or 3.\n";
-                continue;
-            }
-            
-            if (typeChoice < 1 || typeChoice > 3) {
-                cout << "Please select 1, 2, or 3.\n";
-            }
-        } while (typeChoice < 1 || typeChoice > 3);
-
-        if (typeChoice == 1) newPlayer.registrationType = "Early-Bird";
-        else if (typeChoice == 2) newPlayer.registrationType = "Wildcard";
-        else newPlayer.registrationType = "Regular";
+        //  Auto-assign registration type based on ID
+        int numericID = stoi(newPlayer.playerID.substr(1)); // extract numeric part (e.g., "001" => 1)
+        if (numericID <= 15)
+            newPlayer.registrationType = "Early-Bird";
+        else
+            newPlayer.registrationType = "Regular";
 
         newPlayer.status = "Registered";
         newPlayer.wins = 0;
         newPlayer.losses = 0;
-
-        if (newPlayer.registrationType == "Wildcard") {
-            newPlayer.team = "Bench";  
-        }
 
         // Add player to array first
         players[playerCount++] = newPlayer;
@@ -110,25 +92,19 @@ private:
         loadTeamsFromPlayers();
 
         // Queue based on priority
-        if (newPlayer.registrationType == "Early-Bird")
+        if (newPlayer.registrationType == "Early-Bird") {
             priorityQueue.enqueue(newPlayer.playerID + " - " + newPlayer.name, 1);
-        else if (newPlayer.registrationType == "Wildcard")
-            priorityQueue.enqueue(newPlayer.playerID + " - " + newPlayer.name + " (WILDCARD)", 2);
-        else
-            normalQueue.addQueue(newPlayer.playerID[3]);
-
-        cout << "Player registered successfully on " << newPlayer.registrationDate << endl;
+        } else {
+            // string suffix(1, newPlayer.playerID.back()); // Convert char to string
+            normalQueue.addQueue(newPlayer.playerID + " - " + newPlayer.name);
+        }
+        cout << "Player registered successfully as a " << newPlayer.registrationType 
+            << " on " << newPlayer.registrationDate << endl;
 
         // Team assignment loop
-
         if (newPlayer.registrationType != "Wildcard") {
             while (true) {
-                // Remove these local variable declarations:
-                // string teamNames[8];
-                // int teamCounts[8]; 
-                // int totalTeams = 0;
-
-                loadTeamsFromPlayers(); // This updates the class member variables
+                loadTeamsFromPlayers();
 
                 cout << "\n--- Team Assignment ---\n";
                 cout << "1. Create New Team\n2. Join Existing Team\nEnter option: ";
@@ -241,6 +217,58 @@ private:
         FileManager::savePlayers(players, playerCount);
     }
 
+    void registerWildcardPlayer() {
+        if (playerCount >= 100) {
+            cout << "Maximum player capacity reached!" << endl;
+            return;
+        }
+
+        Player newPlayer;
+        cout << "\n=== WILDCARD PLAYER REGISTRATION ===" << endl;
+
+        newPlayer.playerID = Utils::generatePlayerID(players, playerCount);
+        cout << "Player ID: " << newPlayer.playerID << endl;
+
+        cin.ignore();
+        cout << "Enter player name: ";
+        getline(cin, newPlayer.name);
+        while (newPlayer.name.empty()) {
+            cout << "Name cannot be empty. Please enter player name: ";
+            getline(cin, newPlayer.name);
+        }
+
+        newPlayer.email = Utils::getEmailInput();
+
+        cout << "Enter university: ";
+        getline(cin, newPlayer.university);
+        while (newPlayer.university.empty()) {
+            cout << "University cannot be empty. Please enter university: ";
+            getline(cin, newPlayer.university);
+        }
+
+        newPlayer.ranking = Utils::getRankingInput();
+        newPlayer.registrationDate = Utils::getCurrentDate();
+
+        // Explicitly set as Wildcard
+        newPlayer.registrationType = "Wildcard";
+        newPlayer.team = "BENCH";
+        newPlayer.status = "Registered";
+        newPlayer.wins = 0;
+        newPlayer.losses = 0;
+
+        // Add to array
+        players[playerCount++] = newPlayer;
+
+        loadTeamsFromPlayers();
+
+        // Enqueue to priority queue with priority 2 (Wildcard)
+        priorityQueue.enqueue(newPlayer.playerID + " - " + newPlayer.name + " (WILDCARD)", 2);
+
+        cout << "Wildcard player registered successfully on " << newPlayer.registrationDate << endl;
+        FileManager::savePlayers(players, playerCount);
+    }
+
+
     
     void checkInPlayer() {
         string playerID;
@@ -269,69 +297,113 @@ private:
     }
     
     void viewRegistrationQueue() {
-        cout << "\n=== REGISTRATION QUEUE STATUS ===" << endl;
-        
-        cout << "\nPRIORITY QUEUE (Early Birds & Wildcards):" << endl;
+        cout << "\n=== REGISTRATION QUEUE STATUS ===\n";
+
+        // PRIORITY QUEUE
+        cout << "\nPRIORITY QUEUE (Early-Bird & Wildcards):\n";
+
         if (priorityQueue.isEmpty()) {
-            cout << "No players in priority queue." << endl;
+            cout << "No players in priority queue.\n";
         } else {
-            priorityQueue.display();
+            cout << left << setw(25) << "Player ID" 
+                << setw(25) << "Name" 
+                << setw(15) << "Priority Type" << endl;
+            cout << string(65, '-') << endl;
+
+            // Reconstruct display manually using players[]
+            for (int i = 0; i < playerCount; i++) {
+                if (players[i].status == "Registered" &&
+                    (players[i].registrationType == "Early-Bird" || players[i].registrationType == "Wildcard")) {
+
+                    cout << left << setw(25) << players[i].playerID 
+                        << setw(25) << players[i].name 
+                        << setw(15) << players[i].registrationType << endl;
+                }
+            }
         }
-        
-        cout << "\nNORMAL QUEUE (Regular Registration):" << endl;
+
+        // === NORMAL QUEUE ===
+        cout << "\nNORMAL QUEUE (Regular Registration):\n";
+
         if (normalQueue.isEmpty()) {
-            cout << "No players in normal queue." << endl;
+            cout << "No players in normal queue.\n";
         } else {
-            normalQueue.display();
-        }
-    }
-    
-    void processNextPlayer() {
-        cout << "\n=== PROCESSING NEXT PLAYER ===" << endl;
-        
-        // Process priority queue first
-        if (!priorityQueue.isEmpty()) {
-            string nextPlayer = priorityQueue.dequeue();
-            cout << "Processing from Priority Queue: " << nextPlayer << endl;
-            cout << "Player processed and ready for tournament!" << endl;
-        }
-        else if (!normalQueue.isEmpty()) {
-            char nextPlayer = normalQueue.deleteQueue();
-            cout << "Processing from Normal Queue: Player with ID ending in '" << nextPlayer << "'" << endl;
-            cout << "Player processed and ready for tournament!" << endl;
-        }
-        else {
-            cout << "No players in queue to process!" << endl;
+            cout << left << setw(10) << "#" << "Player (ID Ending Suffix)" << endl;
+            cout << string(40, '-') << endl;
+
+            Queue tempQueue = normalQueue; // Copy to avoid modifying original
+            int count = 1;
+            while (!tempQueue.isEmpty()) {
+                string suffix = tempQueue.deleteQueue();
+                cout << left << setw(10) << count << "Player with ID ending in '" << suffix << "'\n";
+                count++;
+            }
         }
     }
     
     void viewAllPlayers() {
-        cout << "\n=== ALL REGISTERED PLAYERS ===" << endl;
-        
+        cout << "\n=== Early-Bird and Wildcard Players ===" << endl;
+        priorityQueue.display();
+
+        cout << "\n=== Regular Players ===" << endl;
+        normalQueue.display();
+
+        cout << "\n=== ALL REGISTERED PLAYERS (By Queue Priority Order) ===" << endl;
+
         if (playerCount == 0) {
             cout << "No players registered yet." << endl;
             return;
         }
-        
-        cout << left << setw(8) << "ID" 
-            << setw(20) << "Name" 
-            << setw(25) << "University" 
-            << setw(8) << "Ranking" 
-            << setw(15) << "Reg Type" 
-            << setw(12) << "Status" << endl;
 
+        cout << left << setw(8) << "ID"
+            << setw(20) << "Name"
+            << setw(25) << "University"
+            << setw(8) << "Ranking"
+            << setw(15) << "Reg Type"
+            << setw(12) << "Status" << endl;
         cout << string(90, '-') << endl;
 
+        // --- EARLY-BIRD first ---
+        cout << "\n-- Priority: Early-Bird --\n";
         for (int i = 0; i < playerCount; i++) {
-            cout << left << setw(8) << players[i].playerID
-                << setw(20) << players[i].name
-                << setw(25) << players[i].university
-                << setw(8) << players[i].ranking
-                << setw(15) << players[i].registrationType
-                << setw(12) << players[i].status << endl;
+            if (players[i].registrationType == "Early-Bird") {
+                cout << left << setw(8) << players[i].playerID
+                    << setw(20) << players[i].name
+                    << setw(25) << players[i].university
+                    << setw(8) << players[i].ranking
+                    << setw(15) << players[i].registrationType
+                    << setw(12) << players[i].status << endl;
+            }
+        }
+
+        // --- Then: WILDCARD ---
+        cout << "\n-- Priority: Wildcard --\n";
+        for (int i = 0; i < playerCount; i++) {
+            if (players[i].registrationType == "Wildcard") {
+                cout << left << setw(8) << players[i].playerID
+                    << setw(20) << players[i].name
+                    << setw(25) << players[i].university
+                    << setw(8) << players[i].ranking
+                    << setw(15) << players[i].registrationType
+                    << setw(12) << players[i].status << endl;
+            }
+        }
+
+        // --- Lastly: REGULAR ---
+        cout << "\n-- Regular Registration --\n";
+        for (int i = 0; i < playerCount; i++) {
+            if (players[i].registrationType == "Regular") {
+                cout << left << setw(8) << players[i].playerID
+                    << setw(20) << players[i].name
+                    << setw(25) << players[i].university
+                    << setw(8) << players[i].ranking
+                    << setw(15) << players[i].registrationType
+                    << setw(12) << players[i].status << endl;
+            }
         }
     }
-    
+
+
     void addWildcardEntry() {
         if (playerCount >= 100) {
             cout << "Maximum player capacity reached!" << endl;
@@ -372,7 +444,6 @@ private:
 
         FileManager::savePlayers(players, playerCount);
     }
-
     
     void handleWithdrawal() {
         string playerID;
@@ -385,162 +456,303 @@ private:
             cout << "Player not found!" << endl;
             return;
         }
+
+        if (players[index].status == "WITHDRAWN") {
+            cout << "Player is already marked as withdrawn.\n";
+            return;
+        }
         
         cout << "Withdrawing player: " << players[index].name << endl;
-        
-        // Shift players array to remove the withdrawn player
-        for (int i = index; i < playerCount - 1; i++) {
-            players[i] = players[i + 1];
-        }
-        playerCount--;
-        
-        cout << "Player withdrawn successfully!" << endl;
+        players[index].status = "WITHDRAWN";
+        players[index].team = "WITHDRAWN";
+
+        cout << "Player marked as withdrawn successfully!" << endl;
         cout << "Withdrawal processed at: " << Utils::getCurrentTimestamp() << endl;
         
         FileManager::savePlayers(players, playerCount);
     }
+
     
     void displayQueueStats() {
         cout << "\n=== QUEUE STATISTICS ===" << endl;
-        cout << "Priority Queue Size: " << priorityQueue.size() << endl;
-        cout << "Normal Queue Size: " << normalQueue.size() << endl;
-        cout << "Total Players Registered: " << playerCount << endl;
         
-        int checkedInCount = 0;
-        int earlyBirdCount = 0;
-        int wildcardCount = 0;
-
+        // Count different registration types
+        int earlyBirdCount = 0, wildcardCount = 0, regularCount = 0;
+        int checkedInCount = 0, withdrawnCount = 0, lateCheckinCount = 0;
+        
         for (int i = 0; i < playerCount; i++) {
-            if (players[i].status == "Checked-In") checkedInCount++;
+            // Count by registration type
             if (players[i].registrationType == "Early-Bird") earlyBirdCount++;
-            if (players[i].registrationType == "Wildcard") wildcardCount++;
+            else if (players[i].registrationType == "Wildcard") wildcardCount++;
+            else if (players[i].registrationType == "Regular") regularCount++;
+            
+            // Count by status
+            if (players[i].status == "Checked-In") checkedInCount++;
+            else if (players[i].status == "WITHDRAWN") withdrawnCount++;
+            else if (players[i].status == "Late Check-In") lateCheckinCount++;
         }
         
-        cout << "Checked-in Players: " << checkedInCount << endl;
-        cout << "Early Bird Registrations: " << earlyBirdCount << endl;
+        cout << "\n--- Registration Type Breakdown ---" << endl;
+        cout << "Early-Bird Registrations: " << earlyBirdCount << endl;
         cout << "Wildcard Entries: " << wildcardCount << endl;
-        cout << "Players in Queues: " << (priorityQueue.size() + normalQueue.size()) << endl;
+        cout << "Regular Registrations: " << regularCount << endl;
+        cout << "Total Players: " << playerCount << endl;
+        
+        cout << "\n--- Status Breakdown ---" << endl;
+        cout << "Checked-In: " << checkedInCount << endl;
+        cout << "Late Check-In: " << lateCheckinCount << endl;
+        cout << "Still Registered: " << (playerCount - checkedInCount - withdrawnCount - lateCheckinCount) << endl;
+        cout << "Withdrawn: " << withdrawnCount << endl;
+        
+        cout << "\n--- Queue Status ---" << endl;
+        cout << "Priority Queue Size: " << priorityQueue.size() << endl;
+        cout << "Normal Queue Size: " << normalQueue.size() << endl;
+        cout << "Total Pending Registrations: " << (priorityQueue.size() + normalQueue.size()) << endl;
+        
+        // Calculate readiness percentage
+        double readinessPercentage = (double)(checkedInCount + lateCheckinCount) / playerCount * 100;
+        cout << "\n--- Tournament Readiness ---" << endl;
+        cout << "Overall Check-in Rate: " << fixed << setprecision(1) << readinessPercentage << "%" << endl;
     }
 
-    void processPriorityRegistrations() {
-        cout << "\n--- Processing Priority Registrations ---\n";
-        
+    void processPriorityQueue() {
+        cout << "\n=== PROCESSING PRIORITY QUEUE (Early-Bird / Wildcard) ===\n";
+
+        // Step 1: Display queue contents using PriorityQueue class method
+        priorityQueue.display();
+
+        // Step 2: Proceed with processing (check-in + update status)
         if (priorityQueue.isEmpty()) {
             cout << "No pending registrations in priority queue.\n";
             return;
         }
-        
-        cout << "Processing registrations in priority order:\n";
+
+        cout << "\n--- Processing and Checking-In ---\n";
+        cout << left << setw(5) << "#"
+            << setw(25) << "Player Info"
+            << setw(12) << "Status" << endl;
+        cout << string(45, '-') << endl;
+
         int count = 1;
-        
         while (!priorityQueue.isEmpty()) {
             string registration = priorityQueue.dequeue();
-            cout << count << ". " << registration << " - PROCESSED\n";
+
+            // Match and update player status
+            for (int i = 0; i < playerCount; i++) {
+                string expected = players[i].playerID + " - " + players[i].name;
+                if (registration.find(expected) != string::npos) {
+                    players[i].status = "Checked-In";
+                    break;
+                }
+            }
+
+            cout << left << setw(5) << count
+                << setw(25) << registration
+                << setw(12) << "Checked-In" << endl;
             count++;
         }
-        
-        cout << "All priority registrations have been processed!\n";
+
+        cout << "All priority registrations have been Checked-In!\n";
+        FileManager::savePlayers(players, playerCount);
     }
 
-    void replacePlayer() {
-        string withdrawnID, replacementID, replacementName, replacementEmail;
-        int regChoice;
-        string regType;
 
-        cout << "\n--- Player Replacement ---\n";
-        cout << "Enter Withdrawn Player ID to replace: ";
-        cin >> withdrawnID;
+    void processNormalQueue() {
+        cout << "\n=== PROCESSING NORMAL QUEUE (Regular Players) ===\n";
 
-        int index = Utils::findPlayerIndex(players, playerCount, withdrawnID);
-        if (index == -1 || players[index].status != "Withdrawn") {
-            cout << "Error: Withdrawn player not found or player is not withdrawn!\n";
+        normalQueue.display();
+
+        if (normalQueue.isEmpty()) {
+            cout << "No players in normal queue.\n";
             return;
         }
 
-        // Validate replacement ID format and uniqueness
-        while (true) {
-            cout << "Enter Replacement Player ID (Format: PXXX e.g., P010): ";
-            cin >> replacementID;
+        cout << "\n--- Checking In Regular Players ---\n";
+        cout << left << setw(5) << "#"
+            << setw(40) << "Player Info"
+            << setw(12) << "Status" << endl;
+        cout << string(60, '-') << endl;
 
-            if (replacementID.length() == 4 && replacementID[0] == 'P' &&
-                isdigit(replacementID[1]) && isdigit(replacementID[2]) && isdigit(replacementID[3])) {
-                
-                if (Utils::findPlayerIndex(players, playerCount, replacementID) != -1) {
-                    cout << "Error: Replacement player ID already exists!\n";
-                    continue;
+        int count = 1;
+        while (!normalQueue.isEmpty()) {
+            string registration = normalQueue.deleteQueue();
+            bool matched = false;
+
+            // Match player using full "ID - Name"
+            for (int i = 0; i < playerCount; i++) {
+                string expected = players[i].playerID + " - " + players[i].name;
+                if (registration.find(expected) != string::npos) {
+                    players[i].status = "Checked-In";
+                    matched = true;
+                    break;
                 }
-                break;
-            } else {
-                cout << "Invalid ID format! Please enter again.\n";
             }
+
+            cout << left << setw(5) << count
+                << setw(40) << registration
+                << setw(12) << (matched ? "Checked-In" : "NOT FOUND") << endl;
+
+            count++;
         }
 
-        cin.ignore(); // Clear buffer
-        cout << "Enter Replacement Player Name: ";
-        getline(cin, replacementName);
+        cout << "\n✅ All regular registrations have been processed.\n";
+        FileManager::savePlayers(players, playerCount);
+    }
 
-        while (true) {
-            cout << "Enter Replacement Email (must end with @gmail.com): ";
-            getline(cin, replacementEmail);
 
-            if (replacementEmail.size() >= 10 &&
-                replacementEmail.substr(replacementEmail.size() - 10) == "@gmail.com") {
-                break;
-            } else {
-                cout << "Invalid email format! Please enter a Gmail address.\n";
+    void replacePlayer() {
+        cout << "\n--- Wildcard Player Team Assignment ---\n";
+        
+        // First, check if there are any wildcard players on the BENCH
+        int wildcardCount = 0;
+        cout << "Available Wildcard Players on BENCH:\n";
+        for (int i = 0; i < playerCount; i++) {
+            if (players[i].registrationType == "Wildcard" && players[i].team == "BENCH") {
+                cout << (wildcardCount + 1) << ". " << players[i].playerID << " - " << players[i].name << endl;
+                wildcardCount++;
             }
         }
-
-        while (true) {
-            cout << "\nSelect Registration Type:\n1. Early-Bird\n2. Wildcard\n3. Regular\nChoose: ";
-            cin >> regChoice;
-
-            if (regChoice == 1) {
-                regType = "Early-Bird";
-                break;
-            } else if (regChoice == 2) {
-                regType = "Wildcard";
-                break;
-            } else if (regChoice == 3) {
-                regType = "Regular";
-                break;
-            } else {
-                cout << "Invalid choice! Try again.\n";
-            }
-        }
-
-        if (playerCount >= 100) {
-            cout << "Maximum player capacity reached!\n";
+        
+        if (wildcardCount == 0) {
+            cout << "No wildcard players available on the BENCH for team assignment.\n";
             return;
         }
-
-        Player replacement;
-        replacement.playerID = replacementID;
-        replacement.name = replacementName;
-        replacement.email = replacementEmail;
-        replacement.university = players[index].university; 
-        replacement.team = players[index].team;             
-        replacement.ranking = Utils::getRankingInput();
-        replacement.registrationDate = Utils::getCurrentDate();
-        replacement.registrationType = regType;
-        replacement.status = "Registered";
-        replacement.wins = 0;
-        replacement.losses = 0;
-
-        players[playerCount++] = replacement;
-
-        // Queue accordingly
-        int priority = (regType == "Early-Bird") ? 1 : (regType == "Wildcard") ? 2 : 3;
-
-        if (priority == 1 || priority == 2)
-            priorityQueue.enqueue(replacementID + " - " + replacementName + " (Replacement)", priority);
-        else
-            normalQueue.addQueue(replacementID[3]); // using last digit like before
-
+        
+        // Let user select which wildcard player to assign
+        cout << "Select wildcard player to assign to team (1-" << wildcardCount << "): ";
+        int wildcardChoice;
+        cin >> wildcardChoice;
+        cin.ignore();
+        
+        if (cin.fail() || wildcardChoice < 1 || wildcardChoice > wildcardCount) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Invalid selection.\n";
+            return;
+        }
+        
+        // Find the selected wildcard player
+        int selectedWildcardIndex = -1;
+        int currentCount = 0;
+        for (int i = 0; i < playerCount; i++) {
+            if (players[i].registrationType == "Wildcard" && players[i].team == "BENCH") {
+                currentCount++;
+                if (currentCount == wildcardChoice) {
+                    selectedWildcardIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        if (selectedWildcardIndex == -1) {
+            cout << "Error finding selected wildcard player.\n";
+            return;
+        }
+        
+        // Load teams from players
+        loadTeamsFromPlayers();
+        
+        if (totalTeams == 0) {
+            cout << "No teams available. Please create teams first.\n";
+            return;
+        }
+        
+        // Display available teams
+        cout << "\nAvailable Teams:\n";
+        for (int i = 0; i < totalTeams; i++) {
+            cout << (i + 1) << ". " << teamNames[i] << " (" << teamCounts[i] << "/5)";
+            if (teamCounts[i] >= 5) {
+                cout << " - Full";
+            } else {
+                cout << " - Available";
+            }
+            cout << endl;
+        }
+        
+        cout << "Select team for wildcard player (1-" << totalTeams << "): ";
+        int teamChoice;
+        cin >> teamChoice;
+        cin.ignore();
+        
+        if (cin.fail() || teamChoice < 1 || teamChoice > totalTeams) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Invalid team selection.\n";
+            return;
+        }
+        
+        string selectedTeam = teamNames[teamChoice - 1];
+        int selectedTeamIndex = teamChoice - 1;
+        
+        // Check if team is full
+        if (teamCounts[selectedTeamIndex] >= 5) {
+            cout << "\nTeam '" << selectedTeam << "' is full. Select a player to withdraw:\n";
+            
+            // Display players in the selected team
+            int teamPlayerCount = 0;
+            for (int i = 0; i < playerCount; i++) {
+                if (players[i].team == selectedTeam) {
+                    cout << (teamPlayerCount + 1) << ". " << players[i].playerID << " - " << players[i].name 
+                        << " (" << players[i].registrationType << ")" << endl;
+                    teamPlayerCount++;
+                }
+            }
+            
+            cout << "Select player to withdraw (1-" << teamPlayerCount << "): ";
+            int withdrawChoice;
+            cin >> withdrawChoice;
+            cin.ignore();
+            
+            if (cin.fail() || withdrawChoice < 1 || withdrawChoice > teamPlayerCount) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Invalid player selection.\n";
+                return;
+            }
+            
+            // Find the player to withdraw
+            int withdrawPlayerIndex = -1;
+            int currentTeamCount = 0;
+            for (int i = 0; i < playerCount; i++) {
+                if (players[i].team == selectedTeam) {
+                    currentTeamCount++;
+                    if (currentTeamCount == withdrawChoice) {
+                        withdrawPlayerIndex = i;
+                        break;
+                    }
+                }
+            }
+            
+            if (withdrawPlayerIndex == -1) {
+                cout << "Error finding player to withdraw.\n";
+                return;
+            }
+            
+            // Withdraw the selected player (move to BENCH or remove)
+            string withdrawnPlayerName = players[withdrawPlayerIndex].name;
+            string withdrawnPlayerID = players[withdrawPlayerIndex].playerID;
+            
+            // Set withdrawn player's team to "BENCH" and status to "Withdrawn"
+            players[withdrawPlayerIndex].team = "BENCH";
+            players[withdrawPlayerIndex].status = "WITHDRAWN";
+            
+            // Assign wildcard player to the team
+            players[selectedWildcardIndex].team = selectedTeam;
+            
+            cout << "Player replacement completed successfully!\n";
+            cout << "Withdrawn: " << withdrawnPlayerName << " (" << withdrawnPlayerID << ") - moved to BENCH\n";
+            cout << "Assigned: " << players[selectedWildcardIndex].name << " (" << players[selectedWildcardIndex].playerID << ") - assigned to team '" << selectedTeam << "'\n";
+        }
+        else {
+            // Team has available slots, directly assign wildcard player
+            players[selectedWildcardIndex].team = selectedTeam;
+            
+            cout << "Wildcard player assignment completed successfully!\n";
+            cout << "Assigned: " << players[selectedWildcardIndex].name << " (" << players[selectedWildcardIndex].playerID << ") - assigned to team '" << selectedTeam << "'\n";
+        }
+        
+        // Save updated player data
         FileManager::savePlayers(players, playerCount);
-
-        cout << "Replacement registered for " << players[index].name << " successfully!\n";
-        cout << "New player: " << replacement.name << " | Team: " << replacement.team << "\n";
     }
 
     void loadTeamsFromPlayers() {
@@ -548,7 +760,7 @@ private:
         for (int i = 0; i < playerCount; i++) {
             string team = players[i].team;
 
-            if (team.empty() || team == "Bench") continue;
+            if (team.empty() || team == "BENCH") continue;
 
             bool found = false;
             for (int j = 0; j < totalTeams; j++) {
@@ -567,13 +779,214 @@ private:
         }
     }
 
+    void rebuildQueuesFromPlayers() {
+        for (int i = 0; i < playerCount; i++) {
+            if (players[i].status == "Registered") {
+                string playerInfo = players[i].playerID + " - " + players[i].name;
 
+                if (players[i].registrationType == "Early-Bird") {
+                    priorityQueue.enqueue(playerInfo, 1);
+                }
+                else if (players[i].registrationType == "Wildcard") {
+                    priorityQueue.enqueue(playerInfo + " (WILDCARD)", 2);
+                }
+                else if (players[i].registrationType == "Regular") {
+                    normalQueue.addQueue(playerInfo);  // 
+                }
+            }
+        }
+    }
+
+
+
+    void lastMinuteCheckIn() {
+        cout << "\n=== LAST-MINUTE CHECK-IN ===" << endl;
+        
+        // Display current time
+        cout << "Current time: " << Utils::getCurrentTimestamp() << endl;
+        cout << "Tournament start time: [Set your tournament start time]" << endl;
+        
+        string playerID;
+        cout << "Enter Player ID for last-minute check-in: ";
+        cin >> playerID;
+        
+        int index = Utils::findPlayerIndex(players, playerCount, playerID);
+        if (index == -1) {
+            cout << "Player not found!" << endl;
+            return;
+        }
+        
+        if (players[index].status == "Checked-In") {
+            cout << "Player " << players[index].name << " is already checked in!" << endl;
+            return;
+        }
+        
+        if (players[index].status == "WITHDRAWN") {
+            cout << "Player " << players[index].name << " has withdrawn and cannot check-in!" << endl;
+            return;
+        }
+        
+        // Mark as late check-in
+        players[index].status = "Late Check-In";
+        
+        cout << "LAST-MINUTE CHECK-IN SUCCESSFUL!" << endl;
+        cout << "Player: " << players[index].name << endl;
+        cout << "Team: " << players[index].team << endl;
+        cout << "Registration Type: " << players[index].registrationType << endl;
+        cout << "Check-in time: " << Utils::getCurrentTimestamp() << endl;
+        cout << "*** PLAYER MARKED FOR PRIORITY PROCESSING ***" << endl;
+        
+        FileManager::savePlayers(players, playerCount);
+    }
+
+
+    // Comprehensive tournament readiness check
+    void tournamentReadinessCheck() {
+        cout << "\n" << string(60, '=') << endl;
+        cout << "    TOURNAMENT READINESS VERIFICATION" << endl;
+        cout << string(60, '=') << endl;
+        
+        loadTeamsFromPlayers();
+        
+        bool tournamentReady = true;
+        int totalPlayersNeeded = 0;
+        int totalPlayersRegistered = 0;
+        int totalPlayersCheckedIn = 0;
+        int totalPlayersWithdrawn = 0;
+        int completeTeams = 0;
+        
+        // Team Analysis
+        cout << "\n--- TEAM STATUS ANALYSIS ---" << endl;
+        cout << left << setw(20) << "Team Name" 
+            << setw(10) << "Members" 
+            << setw(15) << "Checked-In" 
+            << setw(15) << "Status" << endl;
+        cout << string(70, '-') << endl;
+        
+        for (int i = 0; i < totalTeams; i++) {
+            int checkedInCount = 0;
+            int withdrawnCount = 0;
+            
+            // Count checked-in players for this team
+            for (int j = 0; j < playerCount; j++) {
+                if (players[j].team == teamNames[i]) {
+                    if (players[j].status == "Checked-In" || players[j].status == "Late Check-In") {
+                        checkedInCount++;
+                    } else if (players[j].status == "WITHDRAWN") {
+                        withdrawnCount++;
+                    }
+                }
+            }
+            
+            cout << left << setw(20) << teamNames[i]
+                << setw(10) << (to_string(teamCounts[i]) + "/5")
+                << setw(15) << (to_string(checkedInCount) + "/" + to_string(teamCounts[i]));
+            
+            if (teamCounts[i] == 5 && checkedInCount == 5) {
+                cout << setw(15) << "READY" << endl;
+                completeTeams++;
+            } else if (teamCounts[i] < 5) {
+                cout << setw(15) << "INCOMPLETE" << endl;
+                tournamentReady = false;
+            } else if (checkedInCount < teamCounts[i]) {
+                cout << setw(15) << "PENDING CHECK-IN" << endl;
+                tournamentReady = false;
+            }
+            
+            totalPlayersNeeded += 5;
+            totalPlayersRegistered += teamCounts[i];
+            totalPlayersCheckedIn += checkedInCount;
+            totalPlayersWithdrawn += withdrawnCount;
+        }
+        
+        // Overall Statistics
+        cout << "\n--- TOURNAMENT STATISTICS ---" << endl;
+        cout << "Total Teams: " << totalTeams << "/8" << endl;
+        cout << "Complete Teams: " << completeTeams << "/" << totalTeams << endl;
+        cout << "Players Needed: " << totalPlayersNeeded << endl;
+        cout << "Players Registered: " << totalPlayersRegistered << endl;
+        cout << "Players Checked-In: " << totalPlayersCheckedIn << endl;
+        cout << "Players Withdrawn: " << totalPlayersWithdrawn << endl;
+        
+        // Queue Status
+        cout << "\n--- QUEUE STATUS ---" << endl;
+        cout << "Priority Queue (Pending): " << priorityQueue.size() << endl;
+        cout << "Normal Queue (Pending): " << normalQueue.size() << endl;
+        
+        // Final Verdict
+        cout << "\n" << string(60, '=') << endl;
+        if (tournamentReady && totalTeams >= 4) { // Minimum 4 teams for tournament
+            cout << "TOURNAMENT IS READY TO START!" << endl;
+            cout << "All teams are complete and all players are checked-in." << endl;
+        } else {
+            cout << "TOURNAMENT NOT READY!" << endl;
+            cout << "Issues to resolve:" << endl;
+            
+            if (totalTeams < 4) {
+                cout << "- Need at least 4 complete teams (currently have " << completeTeams << ")" << endl;
+            }
+            if (totalPlayersRegistered < totalPlayersNeeded) {
+                cout << "- Missing " << (totalPlayersNeeded - totalPlayersRegistered) << " players" << endl;
+            }
+            if (totalPlayersCheckedIn < totalPlayersRegistered - totalPlayersWithdrawn) {
+                cout << "- " << (totalPlayersRegistered - totalPlayersWithdrawn - totalPlayersCheckedIn) << " players need to check-in" << endl;
+            }
+            
+            // Suggest actions
+            cout << "\nSuggested Actions:" << endl;
+            if (priorityQueue.size() > 0 || normalQueue.size() > 0) {
+                cout << "-Process remaining registrations" << endl;
+            }
+            if (totalPlayersRegistered < totalPlayersNeeded) {
+                cout << "-Use wildcard replacements" << endl;
+            }
+            cout << "-Ensure all players check-in before tournament start" << endl;
+        }
+        cout << string(60, '=') << endl;
+    }
+
+    void checkInFunction() {
+        int choice;
+
+        do{
+            cout << "\n--- CHECK-IN PLAYER ---" << endl;
+            cout << "1. Check-In Player" << endl;
+            cout << "2. Process All Priority Registrations" << endl;
+            cout << "3. Process All Regular Registrations" << endl;
+            cout << "0. Back to Main Menu" << endl;
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            switch(choice){
+                case 1:
+                    checkInPlayer();
+                    break;
+                case 2:
+                    processPriorityQueue();
+                    break;
+                case 3:
+                    processNormalQueue();
+                    break;
+                case 0:
+                    displayMenu();
+                    break;
+                default:
+                    cout << "Invalid choice. Please try again." << endl;
+                    break;
+            }
+            if (choice != 0) {
+                Utils::pauseScreen();
+            }
+        } while (choice != 0);
+        
+    }
 
 public:
     RegistrationManager() {
         playerCount = 0;
         FileManager::loadPlayers(players, playerCount);
         loadTeamsFromPlayers();
+        rebuildQueuesFromPlayers();  
     }
     
     void runTask() {
@@ -595,28 +1008,28 @@ public:
                     registerNewPlayer();
                     break;
                 case 2:
-                    checkInPlayer();
+                    checkInFunction();
                     break;
                 case 3:
-                    viewRegistrationQueue();
+                    lastMinuteCheckIn();
                     break;
                 case 4:
-                    processNextPlayer();
+                    tournamentReadinessCheck();
                     break;
                 case 5:
                     viewAllPlayers();
                     break;
                 case 6:
-                    processPriorityRegistrations();
-                    break;
-                case 7:
                     handleWithdrawal();
                     break;
+                case 7:
+                    replacePlayer();
+                    break;
                 case 8:
-                    displayQueueStats();
+                    registerWildcardPlayer();
                     break;
                 case 9:
-                    replacePlayer();
+                    displayQueueStats();
                     break;
                 case 0:
                     cout << "Returning to main menu..." << endl;
