@@ -18,18 +18,28 @@ private:
     Queue normalQueue;
     PriorityQueue priorityQueue;
     
-    void displayMenu() {
+    void displayPlayerMenu() {
         cout << "\n" << string(60, '=') << endl;
         cout << "    TOURNAMENT REGISTRATION & PLAYER QUEUEING" << endl;
         cout << string(60, '=') << endl;
-        cout << "1. Register New Player" << endl;
-        cout << "2. Check-In Player" << endl;
-        cout << "3. Last-Minute Check-In" << endl;
-        cout << "4. Check Team Status" << endl;
-        cout << "5. View All Registered Players" << endl;
-        cout << "6. Handle Player Withdrawal" << endl;
-        cout << "7. Replace Withdrawn Player (ADMIN)" << endl;
-        cout << "8. Register Wildcard Player (ADMIN)" << endl;
+        cout << "1. Check-In Player" << endl;
+        cout << "2. Last-Minute Check-In" << endl;
+        cout << "3. Check Team Status" << endl;
+        cout << "4. View All Registered Players" << endl;
+        cout << "5. Handle Player Withdrawal" << endl;
+        cout << "0. Back to Main Menu" << endl;
+        cout << string(60, '-') << endl;
+        cout << "Enter your choice: ";
+    }
+
+    void displayAdminMenu() 
+    {
+        cout << "\n" << string(60, '=') << endl;
+        cout << "    TOURNAMENT REGISTRATION & PLAYER QUEUEING" << endl;
+        cout << string(60, '=') << endl;
+        cout << "1. Check-In Player" << endl;
+        cout << "2. Replace Withdrawn Player" << endl;
+        cout << "3. Register Wildcard Player" << endl;
         cout << "0. Back to Main Menu" << endl;
         cout << string(60, '-') << endl;
         cout << "Enter your choice: ";
@@ -87,31 +97,36 @@ private:
         FileManager::savePlayers(players, playerCount);
     }
     
-    void checkInPlayer() {
+    void checkInPlayer(const string& loggedInPlayerID) {
         string playerID;
         cout << "\n=== PLAYER CHECK-IN ===" << endl;
         cout << "Enter Player ID: ";
         cin >> playerID;
-        
+
+        // Ensure the logged-in player is checking in themselves
+        if (playerID != loggedInPlayerID) {
+            cout << "Error: You are only allowed to check in using your own Player ID!" << endl;
+            return;
+        }
+
         int index = Utils::findPlayerIndex(players, playerCount, playerID);
         if (index == -1) {
             cout << "Player not found!" << endl;
             return;
         }
-        
+
         if (players[index].status == "Checked-In") {
             cout << "Player " << players[index].name << " is already checked in!" << endl;
             return;
         }
 
         players[index].status = "Checked-In";
-
-
         cout << "Player " << players[index].name << " checked in successfully!" << endl;
         cout << "Check-in time: " << Utils::getCurrentTimestamp() << endl;
-        
+
         FileManager::savePlayers(players, playerCount);
     }
+
     
     // void viewRegistrationQueue() {
     //     cout << "\n=== REGISTRATION QUEUE STATUS ===\n";
@@ -683,25 +698,21 @@ private:
 
         do{
             cout << "\n--- CHECK-IN PLAYER ---" << endl;
-            cout << "1. Check-In Player" << endl;
-            cout << "2. Process All Priority Registrations" << endl;
-            cout << "3. Process All Regular Registrations" << endl;
+            cout << "1. Process All Priority Registrations" << endl;
+            cout << "2. Process All Regular Registrations" << endl;
             cout << "0. Back to Main Menu" << endl;
             cout << "Enter your choice: ";
             cin >> choice;
 
             switch(choice){
                 case 1:
-                    checkInPlayer();
-                    break;
-                case 2:
                     processPriorityQueue();
                     break;
-                case 3:
+                case 2:
                     processNormalQueue();
                     break;
                 case 0:
-                    displayMenu();
+                    displayPlayerMenu();
                     break;
                 default:
                     cout << "Invalid choice. Please try again." << endl;
@@ -904,11 +915,12 @@ public:
         FileManager::savePlayers(players, playerCount);
     }
     
-    void runTask() {
+    void runTask(string id) {
         int choice;
+        string currentPlayerID = id; 
         
         do {
-            displayMenu();
+            displayPlayerMenu();
             cin >> choice;
             
             if (cin.fail()) {
@@ -920,28 +932,113 @@ public:
             
             switch (choice) {
                 case 1:
-                    registerNewPlayer();
+                    checkInPlayer(currentPlayerID);
                     break;
                 case 2:
-                    checkInFunction();
-                    break;
-                case 3:
                     lastMinuteCheckIn();
                     break;
-                case 4:
+                case 3:
                     tournamentReadinessCheck();
                     break;
-                case 5:
+                case 4:
                     viewAllPlayers();
                     break;
-                case 6:
+                case 5:
                     handleWithdrawal();
                     break;
-                case 7:
+                case 0:
+                    cout << "Returning to main menu..." << endl;
+                    break;
+                default:
+                    cout << "Invalid option! Please try again." << endl;
+                    break;
+            }
+            
+            if (choice != 0) {
+                Utils::pauseScreen();
+            }
+            
+        } while (choice != 0);
+    }
+
+    void adminMenu()
+    {
+        replacePlayer();
+        registerWildcardPlayer();
+
+        int choice;
+        
+        do {
+            displayAdminMenu();
+            cin >> choice;
+            
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Invalid input! Please enter a number." << endl;
+                continue;
+            }
+            
+            switch (choice) {
+                case 1:
+                    checkInFunction();
+                    break;
+                case 2:
                     replacePlayer();
                     break;
-                case 8:
+                case 3:
                     registerWildcardPlayer();
+                    break;
+                case 4:
+                    // tournamentReadinessCheck();
+                    break;
+                case 0:
+                    cout << "Returning to main menu..." << endl;
+                    break;
+                default:
+                    cout << "Invalid option! Please try again." << endl;
+                    break;
+            }
+            
+            if (choice != 0) {
+                Utils::pauseScreen();
+            }
+            
+        } while (choice != 0);
+
+    }
+
+    void playerMenu(string id)
+    {
+        int choice;
+        string currentPlayerID = id; 
+        
+        do {
+            displayPlayerMenu();
+            cin >> choice;
+            
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Invalid input! Please enter a number." << endl;
+                continue;
+            }
+            
+            switch (choice) {
+                case 1:
+                    checkInPlayer(currentPlayerID);
+                    break;
+                case 2:
+                    lastMinuteCheckIn();
+                    break;
+                case 3:
+                    tournamentReadinessCheck();
+                    break;
+                case 4:
+                    viewAllPlayers();
+                    break;
+                case 5:
+                    handleWithdrawal();
                     break;
                 case 0:
                     cout << "Returning to main menu..." << endl;
