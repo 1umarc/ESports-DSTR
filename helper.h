@@ -161,6 +161,32 @@ public:
         file.close();
         cout << "Loaded " << count << " Match result from database." << endl;
     }
+
+    // Read tournament records from string
+    static bool parseMatchResults(const string& matchData, MatchResult& result) {
+        stringstream ss(matchData);
+        string field;
+        
+        try {
+            getline(ss, result.matchID, ',');
+            getline(ss, result.team1ID, ',');
+            getline(ss, result.team2ID, ',');
+            getline(ss, result.winner, ',');
+            getline(ss, result.loser, ',');
+            getline(ss, result.matchDate, ',');
+            getline(ss, result.stage, ',');
+            getline(ss, field, ','); 
+            result.team1Score = stoi(field);
+            getline(ss, field, ','); 
+            result.team2Score = stoi(field);
+            getline(ss, result.duration, ',');
+            
+            return true;
+        } catch (const exception& e) {
+            cout << "Error parsing match data: " << matchData << endl;
+            return false;
+        }
+    }
     
     // Save tournament records to CSV
     static void saveMatchResults(MatchResult results[], int count) 
@@ -214,8 +240,8 @@ public:
     }
     
     // Generate random match ID
-    static string generateMatchID() {
-        return "M" + to_string(rand() % 9000 + 1000);
+    static string generateMatchID(int count) {
+        return string("M") + (count < 10 ? "00" : (count < 100 ? "0" : "")) + to_string(count + 1);
     }
     
     // // Generate random player ID
