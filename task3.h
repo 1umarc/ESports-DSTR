@@ -80,21 +80,28 @@ private:
     int totalOnline;                  // Total Online viewers in system
     int totalOverflow;                // Total in overflow queue
     
-    void displayMenu() {
+    void displayAdminMenu() {
+        cout << "\n" << string(70, '=') << endl;
+        cout << "    LIVE STREAM & SPECTATOR QUEUE MANAGEMENT" << endl;
+        cout << string(70, '=') << endl;
+        cout << "1.  Seat Audience Member" << endl;
+        cout << "2.  View All Audience Members" << endl;
+        cout << "3.  Process Priority Seating (VIP -> Influencer -> General)" << endl;
+        cout << "4.  Manage Circular Overflow Queue" << endl;
+        cout << "5.  Remove Spectator (Departure)" << endl;
+        cout << "6.  View Capacity Status" << endl;
+        cout << "7.  Add All Existing Audience to Circular and Priority Queues" << endl;
+        cout << "0. Back to Main Menu" << endl;
+        cout << string(70, '-') << endl;
+        cout << "Enter your choice: ";
+    }
+
+    void displayAudienceMenu() {
         cout << "\n" << string(70, '=') << endl;
         cout << "    LIVE STREAM & SPECTATOR QUEUE MANAGEMENT" << endl;
         cout << string(70, '=') << endl;
         cout << "1.  Buy Ticket & Join Audience" << endl;
-        cout << "2.  Seat Audience Member" << endl;
-        cout << "3.  View All Audience Members" << endl;
-        cout << "4.  Process Priority Seating (VIP -> Influencer -> General)" << endl;
-        cout << "5.  Manage Circular Overflow Queue" << endl;
-        cout << "6.  Remove Spectator (Departure)" << endl;
-        cout << "7.  View Capacity Status" << endl;
-        cout << "8.  Add All Existing Audience to Circular and Priority Queues" << endl;
-        
-        cout << "\n=== EXIT ===" << endl;
-        cout << "9. Back to Main Menu" << endl;
+        cout << "0.  Back to Main Menu" << endl;
         cout << string(70, '-') << endl;
         cout << "Enter your choice: ";
     }
@@ -1068,11 +1075,11 @@ public:
         FileManager::loadAudience(audience, audienceCount);
     }
 
-    void runTask() {
+    void runAudience() {
         int choice;
         
         do {
-            displayMenu();
+            displayAudienceMenu();
             cin >> choice;
             
             if (cin.fail()) {
@@ -1086,28 +1093,57 @@ public:
                 case 1:
                     buyTicketJoinAudience();
                     break;
-                case 2:
+                default:
+                    cout << "Invalid choice! Please try again." << endl;
+                    break;
+            }
+            
+            if (choice != 0) {
+                cout << "\nPress Enter to continue...";
+                cin.ignore();
+                cin.get();
+            }
+            
+        } while (choice != 0);
+    }
+
+    void runAdmin() {
+        int choice;
+        
+        do {
+            displayAdminMenu();
+            cin >> choice;
+            
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Invalid input! Please enter a number." << endl;
+                continue;
+            }
+            
+            switch (choice) {
+                case 1:
                     seatAudienceMember();
                     break;
-                case 3:
+                case 2:
                     viewAllAudience();
                     break;
-                case 4:
+                case 3:
                     processPrioritySeating();
                     break;
-                case 5:
+                case 4:
                     manageCircularOverflowQueue();
                     break;
-                case 6:
+                case 5:
                     removeSpectator();
                     break;
-                case 7:
+                case 6:
                     viewCapacityStatus();
                     break;
-                case 8:
+                case 7:
                     addAllAudienceToQueue();
                     break;
-                case 9:
+                case 0:
                     cout << "Returning to main menu..." << endl;
                     break;
                 default:
@@ -1115,12 +1151,12 @@ public:
                     break;
             }
             
-            if (choice != 9) {
+            if (choice != 0) {
                 cout << "\nPress Enter to continue...";
                 cin.ignore();
                 cin.get();
             }
             
-        } while (choice != 9);
+        } while (choice != 0);
     }
 };

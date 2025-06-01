@@ -18,7 +18,7 @@ private:
     Player players[100];
     int playerCount;
     
-    void displayMenu() {
+    void displayAdminMenu() {
         cout << "\n" << string(60, '=') << endl;
         cout << "    GAME RESULT LOGGING & PERFORMANCE HISTORY" << endl;
         cout << string(60, '=') << endl;
@@ -26,6 +26,17 @@ private:
         cout << "2. View All Match Results" << endl;
         cout << "3. View Player Performance History" << endl;
         cout << "4. Generate Tournament Statistics" << endl;
+        cout << "0. Return to Main Menu" << endl;
+        cout << string(60, '-') << endl;
+        cout << "Enter your choice: ";
+    }
+
+    void displayPlayerMenu() {
+        cout << "\n" << string(60, '=') << endl;
+        cout << "    GAME RESULT LOGGING & PERFORMANCE HISTORY" << endl;
+        cout << string(60, '=') << endl;
+        cout << "1. View All Match Results" << endl;
+        cout << "2. Generate Tournament Statistics" << endl;
         cout << "0. Return to Main Menu" << endl;
         cout << string(60, '-') << endl;
         cout << "Enter your choice: ";
@@ -662,13 +673,54 @@ public:
         matchHistory = mh;
     }
     
-    void runTask() 
+    void runPlayer() 
     {
         int choice;
         
         do 
         {
-            displayMenu();
+            displayPlayerMenu();
+            cin >> choice;
+            
+            if (cin.fail()) 
+            {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Invalid input! Please enter a number." << endl;
+                continue;
+            }
+            
+            switch (choice) 
+            {
+                case 1:
+                    viewAllResults();
+                    break;
+                case 2:
+                    generateTournamentStats();
+                    break;
+                case 0:
+                    cout << "\nReturning to main menu..." << endl;
+                    break;
+                default:
+                    cout << "Invalid choice! Please select 0-4." << endl;
+                    break;
+            }
+            
+            if (choice != 0) 
+            {
+                Utils::pauseScreen();
+            }
+            
+        } while (choice != 0);
+    }
+
+    void runAdmin() 
+    {
+        int choice;
+        
+        do 
+        {
+            displayAdminMenu();
             cin >> choice;
             
             if (cin.fail()) 

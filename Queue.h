@@ -34,12 +34,12 @@ public:
         // Delete all nodes in the queue
         while (!isEmpty()) 
         {
-            deleteQueue();
+            dequeue();
         }
     }
 
     // Add element to the end of the queue
-    void addQueue(const string& elem)
+    void enqueue(const string& elem)
     {
         // Create a new node
         QNode* newNode = new QNode;
@@ -64,7 +64,7 @@ public:
     }
 
     // Delete the first node and return its info
-    string deleteQueue() 
+    string dequeue() 
     {
         if (isEmpty()) 
         {

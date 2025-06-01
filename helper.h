@@ -243,12 +243,7 @@ public:
     static string generateMatchID(int count) {
         return string("M") + (count < 10 ? "00" : (count < 100 ? "0" : "")) + to_string(count + 1);
     }
-    
-    // // Generate random player ID
-    // static string generatePlayerID(int count) {
-    //     return string("P") + (count < 10 ? "00" : (count < 100 ? "0" : "")) + to_string(count + 1);
-    // }
-    
+       
     // Generate random audience ID
     static string generateAudienceID(int count) {
         return string("A") + (count < 10 ? "00" : (count < 100 ? "0" : "")) + to_string(count + 1);
@@ -282,11 +277,7 @@ public:
     
     // Clear screen function
     static void clearScreen() {
-        #ifdef _WIN32
             system("cls");
-        #else
-            system("clear");
-        #endif
     }
     
     // Pause function
