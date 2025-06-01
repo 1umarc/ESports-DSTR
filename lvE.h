@@ -9,58 +9,68 @@
 
 using namespace std;
 
-class MatchScheduler 
-{
+class MatchScheduler {
 private:
     Stack matchHistory;           // Stack to store completed match results with details
     Queue matchQueue;             // Queue to manage pending matches with match IDs
     Player players[100];          // Array to store players
-    MatchResult matches[50];      // Array to store matches
-    Team teams[8];                // Array to store tournament teams
-    int playerCount;
-    int matchCount;
-    int teamCount;
-    
-    // Tournament stage tracking
-    enum TournamentStage { QUALIFIERS, GROUP_STAGE, KNOCKOUT_STAGE_3RDPLACE, KNOCKOUT_STAGE_FINALS, COMPLETED };
-    TournamentStage currentStage;
+    MatchResult matches[25];      // Array to store matches
+    Team teams[8];                // Array to store tournament teams (limited to 8)
+    int playerCount;              // Total number of players
+    int matchCount;               // Total number of matches
+    int teamCount;                // Total number of teams
+
+    // Tournament stage enumeration for tracking current stage
+    enum TournamentStage { 
+        QUALIFIERS, 
+        GROUP_STAGE, 
+        KNOCKOUT_STAGE_3RDPLACE,  // 1st variation of Knockout Stage
+        KNOCKOUT_STAGE_FINALS,    // 2nd variation of Knockout Stage
+        COMPLETED 
+    };
+    TournamentStage currentStage; // Current stage of the tournament
     
 public:
-    MatchScheduler() 
-    {
+    // Constructor to initialize the match scheduler
+    MatchScheduler() {
         playerCount = 0;
         matchCount = 0;
         teamCount = 0;
         currentStage = QUALIFIERS;
-        srand(time(0));
+        srand(time(0));  // Seed for random operations
         
-        // Load players and match results from CSV
+        // Load players and match results from CSV files
         FileManager::loadPlayers(players, playerCount);
         FileManager::loadMatchResults(matches, matchCount);
         
-        organizeTeams();
-        updateTeamStandings();
-        determineCurrentStage();
+        organizeTeams();           // Organize players into teams
+        updateTeamStandings();     // Update team standings based on matches
+        determineCurrentStage();   // Determine the current tournament stage
         
         cout << "Tournament initialized with " << teamCount << " teams." << endl;
     }
     
-    ~MatchScheduler() 
-    {
-        // Save updated data
-        FileManager::savePlayers(players, playerCount);
-        FileManager::saveMatchResults(matches, matchCount);
+    // Destructor to save data when the object is destroyed
+    ~MatchScheduler() {
+        FileManager::savePlayers(players, playerCount);  // Save player data
+        FileManager::saveMatchResults(matches, matchCount);  // Save match data
+    }
+
+    // Method to get a pointer to the match history stack
+    Stack* getStack() {
+        return &matchHistory;  // Return reference to match history stack
     }
     
+    // Method to run the main task loop for the scheduler
     void runTask() {
         int choice;
         
         do {
-            displayMenu();
+            displayMenu();  // Display user menu options
             cout << "Enter your choice: ";
             cin >> choice;
             
-            if (cin.fail()) {
+            if (cin.fail()) {  // Check for invalid input
                 cin.clear();
                 cin.ignore(1000, '\n');
                 cout << "Invalid input! Please enter a number." << endl;
@@ -69,16 +79,16 @@ public:
             
             switch (choice) {
                 case 1:
-                    scheduleMatches();
+                    scheduleMatches();  // Schedule matches for the current stage
                     break;
                 case 2:
-                    processMatches();
+                    processMatches();  // Process and record match results
                     break;
                 case 3:
-                    displayPlayerStandings();
+                    displayPlayerStandings();  // Display current player standings
                     break;
                 case 4:
-                    displayTournamentBracket();
+                    displayTournamentBracket();  // Display the tournament bracket
                     break;
                 case 0:
                     cout << "Returning to main menu..." << endl;
@@ -87,7 +97,7 @@ public:
                     cout << "Invalid choice! Please try again." << endl;
                     break;
             }
-        } while (choice != 0);
+        } while (choice != 0);  // Continue until the user chooses to exit
     }
     
 private:
@@ -195,14 +205,14 @@ private:
     }
     
     void sortTeamsByPerformance() {
-        // Sort teams by wins (desc), then by average ranking (desc)
+        // Sort teams by wins (desc), then by average ranking (asc - lower is better)
         for (int i = 0; i < teamCount - 1; i++) {
             for (int j = 0; j < teamCount - i - 1; j++) {
                 double avg1 = getTeamAverageRanking(teams[j].teamName);
                 double avg2 = getTeamAverageRanking(teams[j + 1].teamName);
                 
                 if (teams[j].wins < teams[j + 1].wins || 
-                    (teams[j].wins == teams[j + 1].wins && avg1 < avg2)) {
+                    (teams[j].wins == teams[j + 1].wins && avg1 > avg2)) { // Changed from avg1 < avg2
                     Team temp = teams[j];
                     teams[j] = teams[j + 1];
                     teams[j + 1] = temp;
@@ -276,12 +286,12 @@ private:
             sortedTeams[i] = teams[i];
         }
         
-        // Sort by average ranking (desc)
+        // Sort by average ranking (asc - lower ranking is better)
         for (int i = 0; i < teamCount - 1; i++) {
             for (int j = 0; j < teamCount - i - 1; j++) {
                 double avg1 = getTeamAverageRanking(sortedTeams[j].teamName);
                 double avg2 = getTeamAverageRanking(sortedTeams[j + 1].teamName);
-                if (avg1 < avg2) {
+                if (avg1 > avg2) { // Changed from avg1 < avg2
                     Team temp = sortedTeams[j];
                     sortedTeams[j] = sortedTeams[j + 1];
                     sortedTeams[j + 1] = temp;
@@ -289,14 +299,15 @@ private:
             }
         }
         
-        // Create 4 qualifier matches with fair pairings (1vs8, 2vs7, 3vs6, 4vs5)
-        int pairings[4][2] = {{0,7}, {1,6}, {2,5}, {3,4}};
+        // Create 4 qualifier matches with fair pairings (similar rankings)
+        // Instead of 1vs8, 2vs7, 3vs6, 4vs5, do: 1vs2, 3vs4, 5vs6, 7vs8
+        int pairings[4][2] = {{0,1}, {2,3}, {4,5}, {6,7}};
         
         for (int i = 0; i < 4; i++) {
             createMatch(sortedTeams[pairings[i][0]].teamName, 
-                       sortedTeams[pairings[i][1]].teamName, "Qualifiers");
+                    sortedTeams[pairings[i][1]].teamName, "Qualifiers");
             cout << "Match " << (i + 1) << ": " << sortedTeams[pairings[i][0]].teamName 
-                 << " vs " << sortedTeams[pairings[i][1]].teamName << endl;
+                << " vs " << sortedTeams[pairings[i][1]].teamName << endl;
         }
         cout << string(75, '~') << endl;
         cout << "4 Qualifier matches scheduled successfully!" << endl;
@@ -407,7 +418,7 @@ private:
     
     void createMatch(string team1, string team2, string stage) {
         MatchResult newMatch;
-        newMatch.matchID = Utils::generateMatchID();
+        newMatch.matchID = Utils::generateMatchID(matchCount);
         newMatch.team1ID = team1;
         newMatch.team2ID = team2;
         newMatch.matchDate = Utils::getCurrentDate();
@@ -535,7 +546,11 @@ private:
         cout << "\nPLAYER STANDINGS BY TEAM" << endl;
         cout << string(75, '~') << endl;
         
+        // Update team standings first
         updateTeamStandings();
+    
+        // Update individual player records and track if any changes were made
+        bool playersUpdated = updatePlayerRecords();
         
         cout << "Pos | Team Name                           | Player | W-L  | Win% | Avg Rank" << endl;
         cout << string(75, '-') << endl;
@@ -566,9 +581,44 @@ private:
             }
         }
         cout << string(75, '-') << endl;
+            // Display update status
+        if (playersUpdated) {
+            cout << "Player records updated!" << endl;
+        } else {
+            cout << "Player records are up-to-date." << endl;
+        }
         waitForEnter();
     }
-    
+
+    bool updatePlayerRecords() {
+        bool recordsUpdated = false;
+        
+        // Calculate expected wins/losses for each player based on matches
+        for (int i = 0; i < playerCount; i++) {
+            int expectedWins = 0;
+            int expectedLosses = 0;
+            
+            // Count wins and losses from completed matches
+            for (int j = 0; j < matchCount; j++) {
+                if (!matches[j].winner.empty() && !matches[j].loser.empty()) {
+                    if (players[i].team == matches[j].winner) {
+                        expectedWins++;
+                    } else if (players[i].team == matches[j].loser) {
+                        expectedLosses++;
+                    }
+                }
+            }
+            
+            // Check if player's record needs updating
+            if (players[i].wins != expectedWins || players[i].losses != expectedLosses) {
+                players[i].wins = expectedWins;
+                players[i].losses = expectedLosses;
+                recordsUpdated = true;
+            }
+        }
+        FileManager::savePlayers(players, playerCount);
+        return recordsUpdated;
+    }
 
 void displayTournamentBracket() {
     cout << "\nTOURNAMENT BRACKET" << endl;
@@ -795,33 +845,20 @@ string formatMatchLine(string teamName, string score, int totalWidth) {
         score1 = 0;
         score2 = 0;
         
-        // Calculate win probability based on ranking difference
-        double rankDiff = team1Avg - team2Avg;
-        double team1WinProb = 0.5 + (rankDiff / 1000.0) * 0.3; // Adjust probability based on ranking
+        // Calculate win probability based on ranking difference (lower ranking is better)
+        double rankDiff = team2Avg - team1Avg; // Reversed: team2 - team1
+        double team1WinProb = 0.5 + (rankDiff / 1000.0) * 0.3; // Lower team1Avg gives higher probability
         
         // Clamp probability between 0.2 and 0.8 for realistic matches
         if (team1WinProb > 0.8) team1WinProb = 0.8;
         if (team1WinProb < 0.2) team1WinProb = 0.2;
         
-        // Play until one team reaches 5 points (or 6 in case of 5-5 tie)
+        // Play until one team reaches 5 points
         while (score1 < 5 && score2 < 5) {
             if ((double)rand() / RAND_MAX < team1WinProb) {
                 score1++;
             } else {
                 score2++;
-            }
-        }
-        
-        // Handle tie situation (5-5 requires playing to 6)
-        if (score1 == 5 && score2 == 5) {
-            while (abs(score1 - score2) < 1) {
-                if ((double)rand() / RAND_MAX < team1WinProb) {
-                    score1++;
-                } else {
-                    score2++;
-                }
-                // Continue until one team reaches 6 or has a lead
-                if (score1 >= 6 || score2 >= 6) break;
             }
         }
     }
@@ -847,28 +884,9 @@ string formatMatchLine(string teamName, string score, int totalWidth) {
                 case KNOCKOUT_STAGE_FINALS:
                     currentStage = COMPLETED;
                     cout << "Tournament Completed!" << endl;
-                    displayTournamentWinner();
                     break;
                 default:
                     break;
-            }
-        }
-    }
-    
-    void displayTournamentWinner() {
-        for (int i = 0; i < matchCount; i++) {
-            if (matches[i].stage == "Knockout Stage - Final" && !matches[i].winner.empty()) {
-                cout << "\n" << string(50, '*') << endl;
-                cout << "TOURNAMENT CHAMPION: " << matches[i].winner << endl;
-                cout << string(50, '*') << endl;
-                break;
-            }
-        }
-        
-        for (int i = 0; i < matchCount; i++) {
-            if (matches[i].stage == "Knockout Stage - 3rd Place" && !matches[i].winner.empty()) {
-                cout << "3RD PLACE: " << matches[i].winner << endl;
-                break;
             }
         }
     }
