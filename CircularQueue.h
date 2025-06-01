@@ -145,7 +145,7 @@ public:
         
         for (int i = 0; i < count; i++) 
         {
-            cout << current->info << " ";
+            cout << "[" << current->info << "] ";
             current = current->link;
         }
         cout << endl;

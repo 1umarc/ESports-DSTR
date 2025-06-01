@@ -117,7 +117,7 @@ public:
         QNode* current = queueFront;
         while (current != nullptr)
         {
-            cout << current->info << " ";
+            cout << "[" << current->info << "] ";
             current = current->link;
         }
         cout << endl;
