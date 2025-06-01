@@ -225,6 +225,7 @@ bool loginSystem() {
 
 void adminMenu() {
     int choice;
+    string currentPlayerID;
     
     do {
         Utils::clearScreen();
@@ -246,7 +247,7 @@ void adminMenu() {
                 ms.runTask();
                 break;
             case 2: {
-                rm.runTask();
+                rm.runTask(currentPlayerID);
                 break;
             }
             case 3: {
@@ -268,6 +269,7 @@ void adminMenu() {
 }
 
 void playerMenu() {
+    string currentPlayerID = currentUserID; 
     Utils::clearScreen();
     cout << "\n" << string(50, '=') << endl;
     cout << "              PLAYER MENU" << endl;
@@ -275,7 +277,7 @@ void playerMenu() {
     cout << "    Player ID: " << currentUserID << endl;
 
     cout << string(50, '-') << endl;
-    rm.runTask();
+    rm.runTask(currentPlayerID);
     
     // do {
     //     Utils::clearScreen();
