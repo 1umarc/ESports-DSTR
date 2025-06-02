@@ -12,8 +12,8 @@ struct Player {
     string team; 
     int ranking;
     string registrationDate;
-    string registrationType; // Replaces isEarlyBird and isWildcard
-    string status;           // Replaces isCheckedIn
+    string registrationType; 
+    string status;           
     int wins;
     int losses;
 
@@ -68,6 +68,37 @@ struct Team {
     }
 };
 
+// Audience structure  
+struct Audience {
+    string audienceID;
+    string name;
+    string email;
+    string ticketType; // VIP, Streamer, General
+    int priority; // 1=VIP, 2=Streamer, 3=General
+    string seatNumber;
+    bool isSeated;
+    
+    Audience() {
+        audienceID = "";
+        name = "";
+        email = "";
+        ticketType = "";
+        priority = 3;
+        seatNumber = "";
+        isSeated = false;
+    }
+    
+    Audience(string id, string n, string e, string type, int prio) {
+        audienceID = id;
+        name = n;
+        email = e;
+        ticketType = type;
+        priority = prio;
+        seatNumber = "";
+        isSeated = false;
+    }
+};
+
 // Match structure
 struct MatchResult {
     string matchID;
@@ -107,36 +138,3 @@ struct MatchResult {
         duration = "";
     }
 };
-
-
-// Audience structure  
-struct Audience {
-    string audienceID;
-    string name;
-    string email;
-    string ticketType; // VIP, Streamer, General
-    int priority; // 1=VIP, 2=Streamer, 3=General
-    string seatNumber;
-    bool isSeated;
-    
-    Audience() {
-        audienceID = "";
-        name = "";
-        email = "";
-        ticketType = "";
-        priority = 3;
-        seatNumber = "";
-        isSeated = false;
-    }
-    
-    Audience(string id, string n, string e, string type, int prio) {
-        audienceID = id;
-        name = n;
-        email = e;
-        ticketType = type;
-        priority = prio;
-        seatNumber = "";
-        isSeated = false;
-    }
-};
-

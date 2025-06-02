@@ -244,6 +244,25 @@ public:
     static string generateAudienceID(int count) {
         return string("A") + (count < 10 ? "00" : (count < 100 ? "0" : "")) + to_string(count + 1);
     }
+
+    // Generate random player ID
+    static string generatePlayerID(Player players[], int count) {
+        int maxID = 0;
+        for (int i = 0; i < count; i++) {
+            string idNumStr = players[i].playerID.substr(1); // remove 'P'
+            int idNum = stoi(idNumStr);
+            if (idNum > maxID) maxID = idNum;
+        }
+
+        int newID = maxID + 1;
+
+        string idStr = "P";
+        if (newID < 10) idStr += "00";
+        else if (newID < 100) idStr += "0";
+        idStr += to_string(newID);
+
+        return idStr;
+    }
     
     // Find player by ID
     static int findPlayerIndex(Player players[], int count, string playerID) {
@@ -350,24 +369,5 @@ public:
             
             return ranking;
         }
-    }
-    
-    // Generate random player ID
-    static string generatePlayerID(Player players[], int count) {
-        int maxID = 0;
-        for (int i = 0; i < count; i++) {
-            string idNumStr = players[i].playerID.substr(1); // remove 'P'
-            int idNum = stoi(idNumStr);
-            if (idNum > maxID) maxID = idNum;
-        }
-
-        int newID = maxID + 1;
-
-        string idStr = "P";
-        if (newID < 10) idStr += "00";
-        else if (newID < 100) idStr += "0";
-        idStr += to_string(newID);
-
-        return idStr;
     }
 };
