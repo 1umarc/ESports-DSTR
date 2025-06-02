@@ -383,7 +383,7 @@ private:
         }
     }
 
-    // Function 4: Generate Tournament Statistics - CORRECTED VERSION
+    // Function 4: Generate Tournament Statistics
     void generateTournamentStats() 
     {
         cout << string(45, '=') << endl;
@@ -398,7 +398,7 @@ private:
         int stackSize = (matchHistory != nullptr) ? matchHistory->size() : 0;
         cout << "Recent Matches in Stack: " << stackSize << endl;
         
-        // 1. Match Distribution by Stage - CORRECTED
+        // 1. Match Distribution by Stage
         int qualifierMatches = 0, groupMatches = 0, knockoutMatches = 0, otherMatches = 0;
         
         for (int i = 0; i < resultCount; i++) 
@@ -421,7 +421,7 @@ private:
             }
         }
         
-        // 2. Score Statistics - ENHANCED
+        // 2. Score Statistics
         if (resultCount > 0) 
         {
             float totalScore1 = 0, totalScore2 = 0;
@@ -462,7 +462,7 @@ private:
             cout << "Closest Match Score Difference: " << closestMatch << " (Match: " << closestMatchID << ")" << endl;
         }
         
-        // 3. Team Performance Analysis - NEW SECTION
+        // 3. Team Performance Analysis
         cout << "\n=== TEAM PERFORMANCE ANALYSIS ===" << endl;
         
         // Count team wins and analyze performance
@@ -554,7 +554,7 @@ private:
                 << setw(12) << fixed << setprecision(1) << winRate << "%" << endl;
         }
 
-        // 5. Match Duration Analysis - NEW SECTION
+        // 5. Match Duration Analysis
         cout << "\n=== MATCH DURATION ANALYSIS ===" << endl;
         
         if (resultCount > 0) 
